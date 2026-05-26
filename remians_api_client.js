@@ -88,6 +88,13 @@ const API = (() => {
     return post({ action: 'contactForm', ...data });
   }
 
+  /** Get a member's tier by Firebase UID — called on every login */
+  async function getMemberTier(uid) {
+    if (!uid) return 'public';
+    try { return (await get({ action: 'getMemberTier', uid }))?.tier || 'free'; }
+    catch(e) { return 'free'; }
+  }
+
   // ════════════════════════════════════════════════════════
   //  FREE MEMBER ENDPOINTS (must be logged in)
   // ════════════════════════════════════════════════════════
@@ -187,7 +194,7 @@ const API = (() => {
     getWelfareStats, getGallery,
     registerMember, contactForm,
     // Free member
-    getDirectoryBasic,
+    getMemberTier, getDirectoryBasic,
     // Paid member
     getDirectoryFull, getMemberProfile,
     // Moderator
