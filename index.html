@@ -414,6 +414,9 @@ footer{background:var(--green-deep);border-top:1px solid rgba(201,151,42,.15);pa
   .js-step::after{display:none;}
 }
 </style>
+  <!-- Firebase SDKs (compat — works without npm/bundler) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -596,6 +599,22 @@ function setLogos() {
   <div class="container">
     <div class="eyebrow">Member Directory</div>
     <h2 class="section-title" style="margin-bottom:28px">Find Fellow Remians in Canada</h2>
+    <!-- Search bar (shown to free+paid members) -->
+    <div id="dirSearch" style="display:none;margin-bottom:4px">
+      <div class="dir-search-wrap">
+        <i class="ti ti-search"></i>
+        <input class="dir-search-box" type="text" placeholder="Search by name, batch year, city…" oninput="filterDirectory(this.value)"/>
+      </div>
+    </div>
+
+    <!-- Basic directory: name/batch/city (free members) -->
+    <div id="dirBasic" style="display:none"></div>
+
+    <!-- Full directory: all details (paid/admin/moderator) -->
+    <div id="dirFull" style="display:none"></div>
+
+    <!-- Gate overlay (public — not logged in) -->
+    <div id="gateWrap">
     <div class="gate-wrap">
       <div class="gate-preview">
         <div class="gate-preview-header"><i class="ti ti-address-book"></i><span>Canadian Members Directory — 280 members</span></div>
@@ -627,6 +646,7 @@ function setLogos() {
         <p style="font-size:11px;color:rgba(255,255,255,.28);text-align:center;margin-top:10px">Already a member? <span style="color:var(--gold-lt);cursor:pointer" onclick="openModal('login')">Log in →</span></p>
       </div>
     </div>
+    </div><!-- /gateWrap -->
   </div>
 </section>
 
@@ -758,20 +778,48 @@ function setLogos() {
       <div class="mtab active" id="mtab-join" onclick="switchModalTab('join')">Create Account</div>
       <div class="mtab" id="mtab-login" onclick="switchModalTab('login')">Log In</div>
     </div>
+
+    <!-- ── SIGNUP FORM ── -->
     <div id="mform-join">
-      <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" placeholder="As on your DRMC records"/></div>
-      <div class="fg"><label class="fl">Email Address</label><input class="fi" type="email" placeholder="your@email.com"/></div>
-      <div class="fg"><label class="fl">DRMC Graduation Batch Year</label><input class="fi" type="number" placeholder="e.g. 1998"/></div>
-      <div class="fg"><label class="fl">City in Canada</label><input class="fi" type="text" placeholder="e.g. Mississauga, ON"/></div>
-      <div class="fg"><label class="fl">Password</label><input class="fi" type="password" placeholder="Minimum 8 characters"/></div>
+      <div class="fg"><label class="fl">Full Name <span style="color:#C8102E">*</span></label>
+        <input id="su-name" class="fi" type="text" placeholder="As on your DRMC records" autocomplete="name"/>
+      </div>
+      <div class="fg"><label class="fl">Email Address <span style="color:#C8102E">*</span></label>
+        <input id="su-email" class="fi" type="email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">Batch Year <span style="color:#C8102E">*</span></label>
+          <input id="su-batch" class="fi" type="number" placeholder="e.g. 1998" min="1960" max="2020"/>
+        </div>
+        <div class="fg"><label class="fl">Province</label>
+          <input id="su-province" class="fi" type="text" placeholder="e.g. ON"/>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">City in Canada <span style="color:#C8102E">*</span></label>
+        <input id="su-city" class="fi" type="text" placeholder="e.g. Mississauga" autocomplete="address-level2"/>
+      </div>
+      <div class="fg"><label class="fl">Profession <span style="font-weight:400;color:var(--text-tert)">(optional)</span></label>
+        <input id="su-profession" class="fi" type="text" placeholder="e.g. Software Engineer"/>
+      </div>
+      <div class="fg"><label class="fl">Password <span style="color:#C8102E">*</span></label>
+        <input id="su-password" class="fi" type="password" placeholder="Minimum 8 characters" autocomplete="new-password"/>
+      </div>
       <button class="fsubmit" onclick="handleSignup()">Create Free Account</button>
-      <div class="modal-note">Your account will be verified by the Remians Canada committee within 48 hours. You will receive an email confirmation.</div>
+      <div class="modal-note">Your account will be reviewed by the committee within 48 hours. You'll get a confirmation email.</div>
     </div>
+
+    <!-- ── LOGIN FORM ── -->
     <div id="mform-login" style="display:none">
-      <div class="fg"><label class="fl">Email Address</label><input class="fi" type="email" placeholder="your@email.com"/></div>
-      <div class="fg"><label class="fl">Password</label><input class="fi" type="password" placeholder="Your password"/></div>
+      <div class="fg"><label class="fl">Email Address</label>
+        <input id="li-email" class="fi" type="email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="fg"><label class="fl">Password</label>
+        <input id="li-password" class="fi" type="password" placeholder="Your password" autocomplete="current-password"/>
+      </div>
       <button class="fsubmit" onclick="handleLogin()">Log In</button>
-      <div class="modal-note" style="margin-top:12px;cursor:pointer" onclick="showToast('Password reset link sent to your email')">Forgot your password? Click here to reset.</div>
+      <div class="modal-note" style="margin-top:12px">
+        <span style="cursor:pointer;color:var(--green);font-weight:500" onclick="handlePasswordReset()">Forgot your password? Reset it →</span>
+      </div>
     </div>
   </div>
 </div>
@@ -780,6 +828,7 @@ function setLogos() {
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
 
 <script src="remians_api_client.js"></script>
+<script src="firebase_auth.js"></script>
 <script>
 /* ── LOGO INJECT ── */
 window.addEventListener('DOMContentLoaded', setLogos);
@@ -952,8 +1001,7 @@ function switchModalTab(tab) {
     document.getElementById('mform-'+t).style.display = t === tab ? '' : 'none';
   });
 }
-function handleSignup() { closeModal(null,true); showToast("Welcome! Check your email - we'll verify you within 48 hrs."); }
-function handleLogin()  { closeModal(null,true); showToast('Logged in - welcome back, Remian!'); }
+// handleSignup() and handleLogin() are defined in firebase_auth.js
 
 /* ── TOAST ── */
 let _tt;
