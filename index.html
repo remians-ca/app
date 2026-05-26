@@ -545,41 +545,13 @@ function setLogos() {
       <h2 class="section-title">News &amp; Announcements</h2>
       <button class="btn btn-outline-g btn-sm" onclick="showToast('Full news — sign in to read')">All news <i class="ti ti-arrow-right"></i></button>
     </div>
-    <div class="news-grid">
-      <div class="news-card featured" onclick="showToast('Sign in to read the full article')">
-        <div class="nc-img nc-bg1"><i class="ti ti-confetti"></i><div class="nc-tag"><span class="tag tag-green">Event Recap</span></div></div>
-        <div class="nc-body">
-          <div class="nc-title">Remians Canada Eid Reunion 2025 — a memorable evening in Mississauga with 80+ members</div>
-          <div class="nc-meta"><i class="ti ti-clock"></i>3 days ago &nbsp;·&nbsp; <i class="ti ti-map-pin"></i>Mississauga, ON</div>
+    <div class="news-grid" id="newsGrid">
+      <!-- loaded from Google Sheets via API -->
+      <div class="news-card featured" style="grid-column:1/3">
+        <div class="nc-img nc-bg1" style="height:200px;align-items:center;justify-content:center">
+          <i class="ti ti-loader" style="font-size:32px;color:rgba(255,255,255,.3);animation:spin 1s linear infinite"></i>
         </div>
-      </div>
-      <div class="news-card" onclick="showToast('Sign in to read the full article')">
-        <div class="nc-img nc-bg2"><i class="ti ti-award"></i><div class="nc-tag"><span class="tag tag-gold">Achievement</span></div></div>
-        <div class="nc-body">
-          <div class="nc-title">Dr. Tanvir Ahmed (Batch '98) named to Ontario Health Board</div>
-          <div class="nc-meta"><i class="ti ti-clock"></i>1 week ago &nbsp;·&nbsp; <i class="ti ti-users"></i>Batch 1998</div>
-        </div>
-      </div>
-      <div class="news-card" onclick="showToast('Sign in to read the full article')">
-        <div class="nc-img nc-bg3"><i class="ti ti-calendar-event"></i><div class="nc-tag"><span class="tag tag-blue">Upcoming</span></div></div>
-        <div class="nc-body">
-          <div class="nc-title">Annual Picnic 2025 — Save the date: August 17, Brampton</div>
-          <div class="nc-meta"><i class="ti ti-clock"></i>2 weeks ago &nbsp;·&nbsp; <i class="ti ti-map-pin"></i>Brampton, ON</div>
-        </div>
-      </div>
-      <div class="news-card" onclick="showToast('Sign in to read the full article')">
-        <div class="nc-img nc-bg4"><i class="ti ti-candle"></i><div class="nc-tag"><span class="tag tag-gray">Notice</span></div></div>
-        <div class="nc-body">
-          <div class="nc-title">AGM minutes from May 2025 now available to members</div>
-          <div class="nc-meta"><i class="ti ti-clock"></i>3 weeks ago</div>
-        </div>
-      </div>
-      <div class="news-card" onclick="showToast('Sign in to read the full article')">
-        <div class="nc-img nc-bg5"><i class="ti ti-heart-handshake"></i><div class="nc-tag"><span class="tag tag-green">Welfare</span></div></div>
-        <div class="nc-body">
-          <div class="nc-title">Newcomer settlement support fund — applications open for 2025</div>
-          <div class="nc-meta"><i class="ti ti-clock"></i>1 month ago</div>
-        </div>
+        <div class="nc-body"><div class="nc-title" style="color:#ccc">Loading latest news…</div></div>
       </div>
     </div>
   </div>
@@ -591,46 +563,11 @@ function setLogos() {
     <div class="eyebrow">Calendar</div>
     <h2 class="section-title">Upcoming Events</h2>
     <div class="events-layout">
-      <div class="event-list">
-        <div class="ev-card" onclick="openModal('join')">
-          <div class="ev-date"><div class="ev-day">17</div><div class="ev-month">Aug</div></div>
-          <div class="ev-info">
-            <div class="ev-title">Annual Summer Picnic 2025</div>
-            <div class="ev-meta"><span><i class="ti ti-map-pin"></i>Chinguacousy Park, Brampton</span><span><i class="ti ti-users"></i>All members &amp; families</span></div>
-          </div>
-          <button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP →</button>
-        </div>
-        <div class="ev-card" onclick="openModal('join')">
-          <div class="ev-date"><div class="ev-day">12</div><div class="ev-month">Sep</div></div>
-          <div class="ev-info">
-            <div class="ev-title">Batch Reunion — Late 90s &amp; Early 2000s</div>
-            <div class="ev-meta"><span><i class="ti ti-map-pin"></i>Mississauga Community Centre</span><span><i class="ti ti-users"></i>48 attending</span></div>
-          </div>
-          <button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP →</button>
-        </div>
-        <div class="ev-card" onclick="openModal('join')">
-          <div class="ev-date"><div class="ev-day">05</div><div class="ev-month">Oct</div></div>
-          <div class="ev-info">
-            <div class="ev-title">Vancouver Chapter Meetup</div>
-            <div class="ev-meta"><span><i class="ti ti-map-pin"></i>Vancouver, BC</span><span><i class="ti ti-users"></i>22 attending</span></div>
-          </div>
-          <button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP →</button>
-        </div>
-        <div class="ev-card" onclick="openModal('join')">
-          <div class="ev-date"><div class="ev-day">15</div><div class="ev-month">Nov</div></div>
-          <div class="ev-info">
-            <div class="ev-title">Annual General Meeting (AGM) 2025</div>
-            <div class="ev-meta"><span><i class="ti ti-map-pin"></i>Toronto, ON</span><span><i class="ti ti-users"></i>Committee + members</span></div>
-          </div>
-          <button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP →</button>
-        </div>
-        <div class="ev-card" onclick="openModal('join')">
-          <div class="ev-date"><div class="ev-day">20</div><div class="ev-month">Dec</div></div>
-          <div class="ev-info">
-            <div class="ev-title">Year-End Gala &amp; Awards Night</div>
-            <div class="ev-meta"><span><i class="ti ti-map-pin"></i>Venue TBD, GTA</span><span><i class="ti ti-star"></i>Formal event</span></div>
-          </div>
-          <button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP →</button>
+      <div class="event-list" id="eventList">
+        <!-- loaded from Google Sheets via API -->
+        <div style="padding:32px;text-align:center;color:var(--text-tert)">
+          <i class="ti ti-loader" style="font-size:28px;animation:spin 1s linear infinite;display:block;margin-bottom:8px"></i>
+          Loading events…
         </div>
       </div>
 
@@ -699,25 +636,11 @@ function setLogos() {
     <div class="eyebrow">Mutual Aid</div>
     <h2 class="section-title light">Member Support Fund</h2>
     <p class="section-sub light" style="max-width:520px">We look after our own. Whether you're newly arrived in Canada or facing an unexpected hardship, the Remians Canada community has your back.</p>
-    <div class="welfare-grid">
-      <div class="wf-card">
-        <div class="wf-icon"><i class="ti ti-hand-click"></i></div>
-        <div class="wf-title">Settlement Support</div>
-        <div class="wf-sub">Guidance and financial support for newly arrived Remians navigating life in Canada for the first time.</div>
-        <div class="wf-val">Active <small>program</small></div>
-      </div>
-      <div class="wf-card">
-        <div class="wf-icon"><i class="ti ti-heart-handshake"></i></div>
-        <div class="wf-title">Emergency Relief</div>
-        <div class="wf-sub">Discreet financial assistance for members facing unexpected medical or personal hardships.</div>
-        <div class="wf-val">Confidential <small>applications</small></div>
-      </div>
-      <div class="wf-card">
-        <div class="wf-icon"><i class="ti ti-briefcase"></i></div>
-        <div class="wf-title">Career Network</div>
-        <div class="wf-sub">Job referrals, mentorship, and professional introductions through the Remians Canada network.</div>
-        <div class="wf-val">280+ <small>professionals</small></div>
-      </div>
+    <div class="welfare-grid" id="welfareGrid">
+      <!-- loaded from Google Sheets via API -->
+      <div class="wf-card"><div class="wf-icon"><i class="ti ti-hand-click"></i></div><div class="wf-title">Settlement Support</div><div class="wf-sub">Guidance and financial support for newly arrived Remians navigating life in Canada.</div><div class="wf-val" id="wfSettle">Active <small>program</small></div></div>
+      <div class="wf-card"><div class="wf-icon"><i class="ti ti-heart-handshake"></i></div><div class="wf-title">Emergency Relief</div><div class="wf-sub">Discreet financial assistance for members facing unexpected hardships.</div><div class="wf-val" id="wfRelief">Confidential <small>applications</small></div></div>
+      <div class="wf-card"><div class="wf-icon"><i class="ti ti-briefcase"></i></div><div class="wf-title">Career Network</div><div class="wf-sub">Job referrals, mentorship, and professional introductions through our network.</div><div class="wf-val" id="wfNetwork"><span id="wfMemberCount">280</span>+ <small>professionals</small></div></div>
     </div>
     <div class="welfare-cta-bar">
       <div class="wf-bar-text">
@@ -856,6 +779,7 @@ function setLogos() {
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
 
+<script src="remians_api_client.js"></script>
 <script>
 /* ── LOGO INJECT ── */
 window.addEventListener('DOMContentLoaded', setLogos);
@@ -865,21 +789,141 @@ window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', scrollY > 30);
 });
 
-/* ── COUNTER ── */
+/* ══════════════════════════════════════
+   LIVE DATA — reads from Google Sheets
+   via remians_api_client.js (loaded above)
+══════════════════════════════════════ */
+
+const TAG_CONFIG = {
+  promotion:   { cls:'tag-green', icon:'ti-star',            bg:'nc-bg1' },
+  award:       { cls:'tag-gold',  icon:'ti-award',           bg:'nc-bg2' },
+  achievement: { cls:'tag-gold',  icon:'ti-trophy',          bg:'nc-bg2' },
+  event:       { cls:'tag-blue',  icon:'ti-calendar-event',  bg:'nc-bg3' },
+  upcoming:    { cls:'tag-blue',  icon:'ti-calendar-event',  bg:'nc-bg3' },
+  obituary:    { cls:'tag-gray',  icon:'ti-candle',          bg:'nc-bg4' },
+  notice:      { cls:'tag-gray',  icon:'ti-info-circle',     bg:'nc-bg4' },
+  welfare:     { cls:'tag-green', icon:'ti-heart-handshake', bg:'nc-bg5' },
+  recap:       { cls:'tag-green', icon:'ti-confetti',        bg:'nc-bg1' },
+  news:        { cls:'tag-blue',  icon:'ti-news',            bg:'nc-bg3' },
+};
+function tagCfg(tag) {
+  return TAG_CONFIG[(tag||'').toLowerCase()] || TAG_CONFIG.news;
+}
+
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function parseDate(s) { const d = new Date(s); return isNaN(d) ? null : d; }
+function timeAgo(s) {
+  const d = parseDate(s); if (!d) return '';
+  const diff = Math.floor((Date.now() - d) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  if (diff < 7)  return diff + ' days ago';
+  if (diff < 30) return Math.floor(diff/7) + ' week' + (Math.floor(diff/7)>1?'s':'') + ' ago';
+  return Math.floor(diff/30) + ' month' + (Math.floor(diff/30)>1?'s':'') + ' ago';
+}
+
+/* ── RENDER EVENTS ── */
+function renderEvents(events) {
+  const el = document.getElementById('eventList');
+  if (!events || !events.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-tert)"><i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px"></i>No upcoming events. Check back soon!</div>';
+    return;
+  }
+  el.innerHTML = events.map(ev => {
+    const d   = parseDate(ev.event_date);
+    const day = d ? d.getDate() : '?';
+    const mon = d ? MONTHS_SHORT[d.getMonth()] : '???';
+    const venue = [ev.venue, ev.city].filter(Boolean).join(', ') || 'TBD';
+    const rsvpBtn = ev.yapla_url
+      ? `<a href="${ev.yapla_url}" target="_blank" class="ev-rsvp" onclick="event.stopPropagation()">RSVP &rarr;</a>`
+      : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP &rarr;</button>`;
+    return `
+      <div class="ev-card" onclick="openModal('join')">
+        <div class="ev-date"><div class="ev-day">${day}</div><div class="ev-month">${mon}</div></div>
+        <div class="ev-info">
+          <div class="ev-title">${ev.title || 'Untitled Event'}</div>
+          <div class="ev-meta">
+            <span><i class="ti ti-map-pin"></i>${venue}</span>
+            ${ev.event_time ? `<span><i class="ti ti-clock"></i>${ev.event_time}</span>` : ''}
+          </div>
+        </div>
+        ${rsvpBtn}
+      </div>`;
+  }).join('');
+}
+
+/* ── RENDER NEWS ── */
+function renderNews(items) {
+  const el = document.getElementById('newsGrid');
+  if (!items || !items.length) {
+    el.innerHTML = '<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--text-tert)">No announcements yet.</div>';
+    return;
+  }
+  el.innerHTML = items.map((item, i) => {
+    const cfg     = tagCfg(item.tag);
+    const featured = i === 0 ? 'featured' : '';
+    const label   = item.tag ? item.tag.charAt(0).toUpperCase()+item.tag.slice(1) : 'News';
+    const ago     = timeAgo(item.publish_date);
+    const preview = (item.summary || '').substring(0, 70) + ((item.summary||'').length > 70 ? '&hellip;' : '');
+    return `
+      <div class="news-card ${featured}" onclick="showToast('Sign in to read the full article')">
+        <div class="nc-img ${cfg.bg}">
+          <i class="ti ${cfg.icon}"></i>
+          <div class="nc-tag"><span class="tag ${cfg.cls}">${label}</span></div>
+        </div>
+        <div class="nc-body">
+          <div class="nc-title">${item.headline || 'Untitled'}</div>
+          <div class="nc-meta"><i class="ti ti-clock"></i>${ago}${preview ? ' &nbsp;&middot;&nbsp; ' + preview : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── RENDER WELFARE STATS ── */
+function renderWelfareStats(stats) {
+  if (!stats) return;
+  const mc = document.getElementById('wfMemberCount');
+  if (mc && stats.members_supported) mc.textContent = stats.members_supported;
+  if (stats.total_members) {
+    document.querySelectorAll('[data-target="280"]').forEach(el => {
+      el.dataset.target = stats.total_members;
+    });
+    animateCounters();
+  }
+}
+
+/* ── LOAD ALL PAGE DATA ── */
+async function loadPageData() {
+  try {
+    const [evRes, newsRes, wfRes] = await Promise.allSettled([
+      API.getEvents(),
+      API.getNews(),
+      API.getWelfareStats(),
+    ]);
+    if (evRes.status   === 'fulfilled') renderEvents(evRes.value);
+    else { console.warn('Events failed:', evRes.reason); renderEvents([]); }
+    if (newsRes.status === 'fulfilled') renderNews(newsRes.value);
+    else { console.warn('News failed:', newsRes.reason); renderNews([]); }
+    if (wfRes.status   === 'fulfilled') renderWelfareStats(wfRes.value);
+    else console.warn('Welfare failed:', wfRes.reason);
+  } catch(err) {
+    console.error('loadPageData:', err);
+    showToast('Could not load live data — please refresh.');
+  }
+}
+
+/* ── COUNTER ANIMATION ── */
 function animateCounters() {
   document.querySelectorAll('[data-target]').forEach(el => {
     const target = +el.dataset.target;
-    const dur = 1600;
-    const start = performance.now();
+    const dur = 1600, start = performance.now();
     (function tick(now) {
-      const p = Math.min((now - start) / dur, 1);
-      const e = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(e * target).toLocaleString();
+      const p = Math.min((now-start)/dur, 1);
+      el.textContent = Math.round((1-Math.pow(1-p,3))*target).toLocaleString();
       if (p < 1) requestAnimationFrame(tick);
     })(start);
   });
 }
-animateCounters();
 
 /* ── GATE ROWS ── */
 const AVATARS = [
@@ -908,14 +952,8 @@ function switchModalTab(tab) {
     document.getElementById('mform-'+t).style.display = t === tab ? '' : 'none';
   });
 }
-function handleSignup() {
-  closeModal(null, true);
-  showToast('Welcome! Check your email — we\'ll verify you within 48 hrs.');
-}
-function handleLogin() {
-  closeModal(null, true);
-  showToast('Logged in — welcome back, Remian!');
-}
+function handleSignup() { closeModal(null,true); showToast("Welcome! Check your email - we'll verify you within 48 hrs."); }
+function handleLogin()  { closeModal(null,true); showToast('Logged in - welcome back, Remian!'); }
 
 /* ── TOAST ── */
 let _tt;
@@ -926,6 +964,15 @@ function showToast(msg) {
   clearTimeout(_tt);
   _tt = setTimeout(() => t.classList.remove('show'), 3400);
 }
+
+/* ── SPIN KEYFRAME ── */
+const _s = document.createElement('style');
+_s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(_s);
+
+/* ── BOOT ── */
+animateCounters();
+loadPageData();
 </script>
 </body>
 </html>
