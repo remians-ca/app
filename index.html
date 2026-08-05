@@ -688,7 +688,7 @@ function setLogos() {
     <div id="dirSearch" style="display:none;margin-bottom:4px">
       <div class="dir-search-wrap">
         <i class="ti ti-search"></i>
-        <input class="dir-search-box" type="text" placeholder="Search by name, batch year, city…" oninput="filterDirectory(this.value)"/>
+        <input class="dir-search-box" type="text" placeholder="Search by name, HSC year, city…" oninput="filterDirectory(this.value)"/>
       </div>
     </div>
     <div id="dirBasic" style="display:none"></div>
@@ -701,7 +701,7 @@ function setLogos() {
         <div class="gate-overlay">
           <div class="gate-lock"><i class="ti ti-lock"></i></div>
           <div class="gate-lock-title">Members-only access</div>
-          <div class="gate-lock-sub">Sign up free to see member names and batch years. Upgrade to paid membership for full profiles and contact details.</div>
+          <div class="gate-lock-sub">Sign up free to see member names and HSC years. Upgrade to paid membership for full profiles and contact details.</div>
           <button class="btn btn-green btn-sm" onclick="openModal('join')">Unlock Directory →</button>
         </div>
       </div>
@@ -712,7 +712,7 @@ function setLogos() {
         <div class="gate-tiers">
           <div class="gate-tier" onclick="openModal('join')">
             <div class="gt-icon gt-free-i"><i class="ti ti-user"></i></div>
-            <div><div class="gt-name">Free Member</div><div class="gt-desc">See name, batch year &amp; city · RSVP to events</div></div>
+            <div><div class="gt-name">Free Member</div><div class="gt-desc">See name, HSC year &amp; city · RSVP to events</div></div>
             <div class="gt-free-p">Free</div>
           </div>
           <div class="gate-tier hi" onclick="openModal('join')">
@@ -784,8 +784,8 @@ function setLogos() {
         <button class="btn btn-ghost-w btn-lg" onclick="showToast('Email us: info@remians.ca')"><i class="ti ti-mail"></i>Contact Us</button>
       </div>
       <div class="join-steps">
-        <div class="js-step"><div class="js-num">1</div><div class="js-title">Register online</div><div class="js-sub">Create your free account with your DRMC batch year. Verified by committee within 48 hrs.</div></div>
-        <div class="js-step"><div class="js-num">2</div><div class="js-title">Find batchmates</div><div class="js-sub">Search the directory by batch year, city, or profession. Reconnect instantly.</div></div>
+        <div class="js-step"><div class="js-num">1</div><div class="js-title">Register online</div><div class="js-sub">Create your free account with your DRMC HSC year. Verified by committee within 48 hrs.</div></div>
+        <div class="js-step"><div class="js-num">2</div><div class="js-title">Find batchmates</div><div class="js-sub">Search the directory by HSC year, city, or profession. Reconnect instantly.</div></div>
         <div class="js-step"><div class="js-num">3</div><div class="js-title">Join the community</div><div class="js-sub">Attend events, access the welfare fund, and stay connected to DRMC.</div></div>
       </div>
     </div>
@@ -863,7 +863,7 @@ function setLogos() {
         <input id="su-email" class="fi" type="email" placeholder="your@email.com" autocomplete="email"/>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">Batch Year <span style="color:var(--red)">*</span></label>
+        <div class="fg"><label class="fl">HSC Year <span style="color:var(--red)">*</span></label>
           <input id="su-batch" class="fi" type="number" placeholder="e.g. 1998" min="1960" max="2020"/>
         </div>
         <div class="fg"><label class="fl">Province</label>
