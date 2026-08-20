@@ -933,7 +933,24 @@ function tagCfg(tag) {
 }
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function parseDate(s) { const d = new Date(s); return isNaN(d) ? null : d; }
+function parseDate(s) {
+  if (!s) return null;
+  // A date-only "YYYY-MM-DD" is parsed by new Date() as UTC midnight, which
+  // reads back as the PREVIOUS day in timezones behind UTC. Build it in LOCAL
+  // time instead so the calendar day always matches the sheet.
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s).trim());
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+// Guard: if a time value still arrives as a raw ISO timestamp (e.g. the Sheets
+// 1899 epoch blob before the Apps Script is redeployed), don't render it.
+function cleanTime(t) {
+  if (!t) return '';
+  t = String(t);
+  if (/^\d{4}-\d{2}-\d{2}T/.test(t)) return '';
+  return t;
+}
 function timeAgo(s) {
   const d = parseDate(s); if (!d) return '';
   const diff = Math.floor((Date.now() - d) / 86400000);
@@ -956,6 +973,7 @@ function renderEvents(events) {
     const day = d ? d.getDate() : '?';
     const mon = d ? MONTHS_SHORT[d.getMonth()] : '???';
     const venue = [ev.venue, ev.city].filter(Boolean).join(', ') || 'TBD';
+    const time  = cleanTime(ev.event_time);
     const rsvpBtn = ev.yapla_url
       ? `<a href="${ev.yapla_url}" target="_blank" class="ev-rsvp" onclick="event.stopPropagation()">RSVP &rarr;</a>`
       : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP &rarr;</button>`;
@@ -966,7 +984,7 @@ function renderEvents(events) {
           <div class="ev-title">${ev.title || 'Untitled Event'}</div>
           <div class="ev-meta">
             <span><i class="ti ti-map-pin"></i>${venue}</span>
-            ${ev.event_time ? `<span><i class="ti ti-clock"></i>${ev.event_time}</span>` : ''}
+            ${time ? `<span><i class="ti ti-clock"></i>${time}</span>` : ''}
           </div>
         </div>
         ${rsvpBtn}
