@@ -55,6 +55,20 @@ function doGet(e) {
       case 'getWelfareStats':  return getWelfareStats();
       case 'getGallery':       return getGallery();
 
+      // ── AUTH HELPER ───────────────────────────────
+      case 'getMemberTier':
+        if (!uid) return respond({ tier: 'public', status: 'unknown' });
+        const mbrTier = getMemberByUid(uid);
+        // Returns tier AND status so frontend can enforce both checks:
+        //   status = 'pending'   -> not yet approved by committee
+        //   status = 'approved'  -> full access based on tier
+        //   status = 'suspended' -> account blocked
+        //   null (not in Members sheet) -> still in Pending sheet
+        return respond({
+          tier:   mbrTier ? (mbrTier.tier   || 'free')    : 'pending',
+          status: mbrTier ? (mbrTier.status || 'pending') : 'pending',
+        });
+
       // ── FREE MEMBER (name/batch/city only) ────────
       case 'getDirectoryBasic':
         if (!uid) return error('Authentication required', 401);
@@ -194,26 +208,63 @@ function isAdminOrMod(uid) {
 // ══════════════════════════════════════════════════════════
 
 // ── EVENTS (public) ────────────────────────────────────────
-// Returns all events where status = 'published' and date >= today
+// Returns upcoming events — accepts blank, 'published', or 'active' status.
+// Also handles Google Sheets Date objects and serial numbers safely.
 function getEvents() {
-  const rows = readSheet(SHEET.EVENTS);
+  const rows  = readSheet(SHEET.EVENTS);
   const today = new Date();
   today.setHours(0,0,0,0);
 
+  function safeDate(val) {
+    if (!val) return null;
+    if (val instanceof Date) return val;
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Format using the SPREADSHEET's own timezone so the calendar date/time
+  // matches exactly what is typed in the sheet. Using .getDate() (script TZ)
+  // was causing an off-by-one day shift when script TZ != spreadsheet TZ.
+  const TZ = SpreadsheetApp.getActive().getSpreadsheetTimeZone();
+
+  function fmtDate(val) {
+    if (!val) return '';
+    if (val instanceof Date) return Utilities.formatDate(val, TZ, 'yyyy-MM-dd');
+    return String(val);            // already a plain string like "2025-09-12"
+  }
+
+  // Time-only cells are stored by Sheets as a fraction of a day since the
+  // 1899-12-30 epoch, so a raw read serializes to "1899-12-30T..Z". Formatting
+  // to a plain time string ("12:00 PM") fixes that.
+  function fmtTime(val) {
+    if (!val) return '';
+    if (val instanceof Date) return Utilities.formatDate(val, TZ, 'h:mm a');
+    return String(val);            // already a plain string like "12:00 PM"
+  }
+
   const upcoming = rows
-    .filter(r => r.status === 'published' && new Date(r.event_date) >= today)
-    .sort((a,b) => new Date(a.event_date) - new Date(b.event_date))
+    .filter(r => {
+      // Accept published, active, or blank status
+      const s = (r.status || '').toString().toLowerCase().trim();
+      if (s && s !== 'published' && s !== 'active') return false;
+      const d = safeDate(r.event_date);
+      return d && d >= today;
+    })
+    .sort((a,b) => {
+      const da = safeDate(a.event_date), db = safeDate(b.event_date);
+      return (da || 0) - (db || 0);
+    })
     .map(r => ({
       id:          r.id,
       title:       r.title,
-      event_date:  r.event_date,
-      event_time:  r.event_time,
+      event_date:  fmtDate(r.event_date),
+      event_time:  fmtTime(r.event_time),
       venue:       r.venue,
       city:        r.city,
       description: r.description,
-      yapla_url:   r.yapla_url,       // link to Yapla registration form
+      yapla_url:   r.yapla_url,
       capacity:    r.capacity,
-      tag:         r.tag,             // e.g. social, reunion, agm, webinar
+      tag:         r.tag,
     }));
 
   return respond(upcoming);
