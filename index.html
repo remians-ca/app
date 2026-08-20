@@ -570,15 +570,15 @@ function setLogos() {
       </div>
       <h1 class="hero-title fu d2"><em>Remians</em><br>Canada</h1>
       <p class="hero-sub fu d3">
-        Alumni Association of Dhaka Residential Model College — Canadian Chapter. Connecting DRMC graduates across Canada, one reunion at a time.
+        Alumni Association of Dhaka Residential Model College — Canadian Chapter. Connecting DRMC graduates across Canada.
       </p>
       <div class="hero-ctas fu d4">
         <button class="btn btn-green btn-lg" onclick="openModal('join')"><i class="ti ti-user-plus"></i>Join the Chapter</button>
         <button class="btn btn-ghost-w btn-lg" onclick="document.getElementById('events').scrollIntoView({behavior:'smooth'})"><i class="ti ti-calendar"></i>Events</button>
       </div>
       <div class="hero-proof fu d5">
-        <div class="proof-stat"><div class="proof-num" data-target="250">0</div><div class="proof-lbl">Members in Canada</div></div>
-        <div class="proof-stat"><div class="proof-num" data-target="13">0</div><div class="proof-lbl">Provinces & Territories</div></div>
+        <div class="proof-stat"><div class="proof-num" data-target="250" data-live="members">0</div><div class="proof-lbl">Members in Canada</div></div>
+        <div class="proof-stat"><div class="proof-num" data-target="13">0</div><div class="proof-lbl">Provinces &amp; Territories</div></div>
         <div class="proof-stat"><div class="proof-num">2019</div><div class="proof-lbl">Chapter est.</div></div>
       </div>
     </div>
@@ -622,9 +622,9 @@ function setLogos() {
 <div class="stats-band">
   <div class="container">
     <div class="stats-grid">
-      <div class="stat-item"><div class="stat-num" data-target="280">0</div><div class="stat-lbl">Members in Canada</div></div>
-      <div class="stat-item"><div class="stat-num" data-target="8">0</div><div class="stat-lbl">Cities</div></div>
-      <div class="stat-item"><div class="stat-num" data-target="10">0</div><div class="stat-lbl">Years as Chapter</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="250" data-live="members">0</div><div class="stat-lbl">Members in Canada</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="13">0</div><div class="stat-lbl">Provinces &amp; Territories</div></div>
+      <div class="stat-item"><div class="stat-num" data-target="6">0</div><div class="stat-lbl">Years as Chapter</div></div>
       <div class="stat-item"><div class="stat-num" data-target="24">0</div><div class="stat-lbl">Events Hosted</div></div>
     </div>
   </div>
@@ -688,7 +688,7 @@ function setLogos() {
     <div id="dirSearch" style="display:none;margin-bottom:4px">
       <div class="dir-search-wrap">
         <i class="ti ti-search"></i>
-        <input class="dir-search-box" type="text" placeholder="Search by name, HSC year, city…" oninput="filterDirectory(this.value)"/>
+        <input class="dir-search-box" type="text" placeholder="Search by name, batch year, city…" oninput="filterDirectory(this.value)"/>
       </div>
     </div>
     <div id="dirBasic" style="display:none"></div>
@@ -696,12 +696,12 @@ function setLogos() {
     <div id="gateWrap">
     <div class="gate-wrap">
       <div class="gate-preview">
-        <div class="gate-preview-header"><i class="ti ti-address-book"></i><span>Canadian Members Directory — 280 members</span></div>
+        <div class="gate-preview-header"><i class="ti ti-address-book"></i><span>Canadian Members Directory — 250 members</span></div>
         <div class="gate-rows" id="gateRows"></div>
         <div class="gate-overlay">
           <div class="gate-lock"><i class="ti ti-lock"></i></div>
           <div class="gate-lock-title">Members-only access</div>
-          <div class="gate-lock-sub">Sign up free to see member names and HSC years. Upgrade to paid membership for full profiles and contact details.</div>
+          <div class="gate-lock-sub">Sign up free to see member names and batch years. Upgrade to paid membership for full profiles and contact details.</div>
           <button class="btn btn-green btn-sm" onclick="openModal('join')">Unlock Directory →</button>
         </div>
       </div>
@@ -712,7 +712,7 @@ function setLogos() {
         <div class="gate-tiers">
           <div class="gate-tier" onclick="openModal('join')">
             <div class="gt-icon gt-free-i"><i class="ti ti-user"></i></div>
-            <div><div class="gt-name">Free Member</div><div class="gt-desc">See name, HSC year &amp; city · RSVP to events</div></div>
+            <div><div class="gt-name">Free Member</div><div class="gt-desc">See name, batch year &amp; city · RSVP to events</div></div>
             <div class="gt-free-p">Free</div>
           </div>
           <div class="gate-tier hi" onclick="openModal('join')">
@@ -738,7 +738,7 @@ function setLogos() {
     <div class="welfare-grid" id="welfareGrid">
       <div class="wf-card"><div class="wf-icon"><i class="ti ti-hand-click"></i></div><div class="wf-title">Settlement Support</div><div class="wf-sub">Guidance and financial support for newly arrived Remians navigating life in Canada.</div><div class="wf-val" id="wfSettle">Active <small>program</small></div></div>
       <div class="wf-card"><div class="wf-icon"><i class="ti ti-heart-handshake"></i></div><div class="wf-title">Emergency Relief</div><div class="wf-sub">Discreet financial assistance for members facing unexpected hardships.</div><div class="wf-val" id="wfRelief">Confidential <small>applications</small></div></div>
-      <div class="wf-card"><div class="wf-icon"><i class="ti ti-briefcase"></i></div><div class="wf-title">Career Network</div><div class="wf-sub">Job referrals, mentorship, and professional introductions through our network.</div><div class="wf-val" id="wfNetwork"><span id="wfMemberCount">280</span>+ <small>professionals</small></div></div>
+      <div class="wf-card"><div class="wf-icon"><i class="ti ti-briefcase"></i></div><div class="wf-title">Career Network</div><div class="wf-sub">Job referrals, mentorship, and professional introductions through our network.</div><div class="wf-val" id="wfNetwork"><span id="wfMemberCount">250</span>+ <small>professionals</small></div></div>
     </div>
     <div class="welfare-cta-bar">
       <div class="wf-bar-text">
@@ -778,14 +778,14 @@ function setLogos() {
     <div class="join-inner">
       <div class="eyebrow" style="text-align:center">Ready to Connect?</div>
       <h2 class="section-title light" style="text-align:center">Your batchmates<br><em>are already here.</em></h2>
-      <p class="section-sub light" style="text-align:center;max-width:420px;margin:0 auto">280+ DRMC graduates across Canada. Find yours — it takes 2 minutes to join.</p>
+      <p class="section-sub light" style="text-align:center;max-width:420px;margin:0 auto">250+ DRMC graduates across Canada. Find yours — it takes 2 minutes to join.</p>
       <div class="join-ctas">
         <button class="btn btn-green btn-lg" onclick="openModal('join')"><i class="ti ti-user-plus"></i>Join for Free</button>
         <button class="btn btn-ghost-w btn-lg" onclick="showToast('Email us: info@remians.ca')"><i class="ti ti-mail"></i>Contact Us</button>
       </div>
       <div class="join-steps">
-        <div class="js-step"><div class="js-num">1</div><div class="js-title">Register online</div><div class="js-sub">Create your free account with your DRMC HSC year. Verified by committee within 48 hrs.</div></div>
-        <div class="js-step"><div class="js-num">2</div><div class="js-title">Find batchmates</div><div class="js-sub">Search the directory by HSC year, city, or profession. Reconnect instantly.</div></div>
+        <div class="js-step"><div class="js-num">1</div><div class="js-title">Register online</div><div class="js-sub">Create your free account with your DRMC batch year. Verified by committee within 48 hrs.</div></div>
+        <div class="js-step"><div class="js-num">2</div><div class="js-title">Find batchmates</div><div class="js-sub">Search the directory by batch year, city, or profession. Reconnect instantly.</div></div>
         <div class="js-step"><div class="js-num">3</div><div class="js-title">Join the community</div><div class="js-sub">Attend events, access the welfare fund, and stay connected to DRMC.</div></div>
       </div>
     </div>
@@ -800,7 +800,7 @@ function setLogos() {
         <div class="footer-logo-wrap">
           <img data-logo class="footer-logo-img" src="" alt="Remians Canada"/>
         </div>
-        <div class="footer-desc">Official Canadian chapter of the Dhaka Residential Model College Alumni Association. Connecting DRMC graduates across Canada since 2015.</div>
+        <div class="footer-desc">Official Canadian chapter of the Dhaka Residential Model College Alumni Association. Connecting DRMC graduates across Canada since 2019.</div>
         <div class="footer-socials">
           <div class="soc"><i class="ti ti-brand-facebook"></i></div>
           <div class="soc"><i class="ti ti-brand-whatsapp"></i></div>
@@ -863,7 +863,7 @@ function setLogos() {
         <input id="su-email" class="fi" type="email" placeholder="your@email.com" autocomplete="email"/>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">HSC Year <span style="color:var(--red)">*</span></label>
+        <div class="fg"><label class="fl">Batch Year <span style="color:var(--red)">*</span></label>
           <input id="su-batch" class="fi" type="number" placeholder="e.g. 1998" min="1960" max="2020"/>
         </div>
         <div class="fg"><label class="fl">Province</label>
@@ -1006,8 +1006,11 @@ function renderWelfareStats(stats) {
   if (!stats) return;
   const mc = document.getElementById('wfMemberCount');
   if (mc && stats.members_supported) mc.textContent = stats.members_supported;
+  // Live member count: targets a stable hook, not a magic number, so editing the
+  // displayed value never breaks this. Note: to actually drive this from the Sheet,
+  // add a `total_members` field to the Welfare tab + Apps Script; today it's dormant.
   if (stats.total_members) {
-    document.querySelectorAll('[data-target="280"]').forEach(el => {
+    document.querySelectorAll('[data-live="members"]').forEach(el => {
       el.dataset.target = stats.total_members;
     });
     animateCounters();
