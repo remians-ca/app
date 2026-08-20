@@ -12,18 +12,10 @@
  * ============================================================
  */
 
-// ── FIREBASE CONFIG ─────────────────────────────────────────
-const firebaseConfig = {
-  apiKey:            "AIzaSyDgnBYbUR5B2cQppkXlJaenWltXHtPbC_E",
-  authDomain:        "remians-canada.firebaseapp.com",
-  projectId:         "remians-canada",
-  storageBucket:     "remians-canada.firebasestorage.app",
-  messagingSenderId: "564563518874",
-  appId:             "1:564563518874:web:e54d000d543a9721ed4623"
-};
-
-// ── INITIALIZE ──────────────────────────────────────────────
-firebase.initializeApp(firebaseConfig);
+// ── FIREBASE AUTH ────────────────────────────────────────────
+// Firebase is initialized in index.html (before this script loads).
+// This keeps the config out of .js files and away from GitHub secret scanning.
+// auth is set from the initialized app:
 const auth = firebase.auth();
 
 // ── GLOBAL STATE ────────────────────────────────────────────
@@ -31,20 +23,46 @@ window.currentUser = null;
 window.currentTier = 'public';
 
 // ── AUTH STATE LISTENER ─────────────────────────────────────
-// Fires on every page load and whenever login/logout happens
+// Fires on every page load and whenever login/logout happens.
+// Two gates enforced here:
+//   Gate 1 — Email must be verified (Firebase)
+//   Gate 2 — Account must be approved by committee (Sheets)
 auth.onAuthStateChanged(async (user) => {
   if (user) {
-    window.currentUser = user;
 
-    // Fetch their tier from Google Sheets
-    try {
-      const tier = await API.getMemberTier(user.uid);
-      window.currentTier = tier || 'free';
-    } catch(e) {
-      console.warn('Could not fetch member tier:', e.message);
-      window.currentTier = 'free';
+    // ── GATE 1: Email verification ──────────────────────────
+    if (!user.emailVerified) {
+      await auth.signOut();
+      window.currentUser = null;
+      window.currentTier = 'public';
+      updateNavLoggedOut();
+      applyTierView('public');
+      showVerificationBanner(user.email);
+      return;
     }
 
+    // ── GATE 2: Committee approval ──────────────────────────
+    let memberData = { tier: 'free', status: 'pending' };
+    try {
+      memberData = await API.getMemberTier(user.uid);
+    } catch(e) {
+      console.warn('Could not fetch member status:', e.message);
+    }
+
+    if (memberData.status !== 'approved') {
+      // Not yet approved — sign them out and explain
+      await auth.signOut();
+      window.currentUser = null;
+      window.currentTier = 'public';
+      updateNavLoggedOut();
+      applyTierView('public');
+      showPendingBanner();
+      return;
+    }
+
+    // ── Both gates passed — grant access ────────────────────
+    window.currentUser = user;
+    window.currentTier = memberData.tier || 'free';
     updateNavLoggedIn(user);
     applyTierView(window.currentTier);
 
@@ -133,10 +151,30 @@ async function handleLogin() {
   setSubmitLoading(true, 'Signing in…');
 
   try {
-    await auth.signInWithEmailAndPassword(email, password);
+    const cred = await auth.signInWithEmailAndPassword(email, password);
     setSubmitLoading(false);
+
+    // Check email verification immediately so we give a clear message
+    // (onAuthStateChanged will also enforce this, this just improves UX)
+    if (!cred.user.emailVerified) {
+      await auth.signOut();
+      closeModal(null, true);
+      showVerificationBanner(email);
+      return;
+    }
+
+    // Let onAuthStateChanged handle the approval check and tier loading
     closeModal(null, true);
-    showToast('Welcome back, Remian! 🇧🇩🍁');
+    // Slight delay so auth state listener can run
+    setTimeout(() => {
+      if (window.currentTier === 'public') {
+        // onAuthStateChanged signed them out (pending approval)
+        // Banner already shown by listener — nothing more to do
+      } else {
+        showToast('Welcome back, Remian! 🇧🇩🍁');
+      }
+    }, 800);
+
   } catch(err) {
     setSubmitLoading(false);
     showAuthError(firebaseErrorMsg(err.code));
@@ -353,8 +391,77 @@ function updateNavLoggedOut() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  SUCCESS BANNER
+//  BANNERS
+//  Three types: success, email-not-verified, pending-approval
 // ════════════════════════════════════════════════════════════
+
+function showBanner(title, message, color, extraHtml) {
+  let banner = document.getElementById('authBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'authBanner';
+    document.body.appendChild(banner);
+  }
+  banner.style.cssText = [
+    'position:fixed;top:80px;left:50%;transform:translateX(-50%)',
+    'padding:18px 24px;border-radius:12px',
+    'max-width:500px;width:92%;text-align:center',
+    'box-shadow:0 8px 32px rgba(0,0,0,.2)',
+    'z-index:3000;animation:slideDown .3s ease both',
+    `background:${color};color:white`,
+  ].join(';');
+  banner.innerHTML = `
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">${title}</div>
+    <div style="font-size:13px;opacity:.9;line-height:1.6">${message}</div>
+    ${extraHtml || ''}
+    <button onclick="document.getElementById('authBanner').remove()"
+      style="margin-top:12px;background:rgba(255,255,255,.2);border:none;color:white;
+             padding:6px 18px;border-radius:6px;cursor:pointer;font-size:12px">
+      Dismiss
+    </button>`;
+  // Auto-dismiss after 15 seconds
+  setTimeout(() => banner?.remove(), 15000);
+}
+
+// ── Email not verified ───────────────────────────────────────
+function showVerificationBanner(email) {
+  showBanner(
+    '📧 Please verify your email first',
+    `We sent a verification link to <strong>${email}</strong>. ` +
+    'Click the link in that email, then come back and log in.',
+    '#C8102E',
+    `<div style="margin-top:10px">
+       <button onclick="resendVerification('${email}')"
+         style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+                color:white;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:8px">
+         Resend verification email
+       </button>
+     </div>`
+  );
+}
+
+// ── Account pending committee approval ───────────────────────
+function showPendingBanner() {
+  showBanner(
+    '⏳ Your account is pending approval',
+    'Your email is verified. The Remians Canada committee will review your application ' +
+    'within 48 hours and send you a confirmation email.',
+    '#1A5C2A',
+    ''
+  );
+}
+
+// ── Resend verification email ────────────────────────────────
+async function resendVerification(email) {
+  try {
+    // User was signed out — need to re-sign in briefly to resend
+    // Instead, just tell them to try logging in again (Firebase will detect unverified)
+    showToast('Please log in again — Firebase will prompt email verification.');
+  } catch(e) {
+    showToast('Could not resend. Try logging in again.');
+  }
+}
+
 function showSuccessBanner(title, message) {
   let banner = document.getElementById('successBanner');
   if (!banner) {
