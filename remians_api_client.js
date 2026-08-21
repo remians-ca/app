@@ -14,7 +14,7 @@
 const API = (() => {
 
   // ── REPLACE THIS with your deployed Apps Script URL ──────
-  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwA0Vl3cW-8mJU1lxBBXbz41R3tBjyA4rlKFA__syOcd96GWxPxwMr_56KusQBEzqMHPQ/exec';
+  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwrx56iMW5WheGHd4OXNArVUKZAwWsNLorD3WLX1PYGDxAm74UVrY4_vYNXqu5XqZBtxQ/exec';
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
