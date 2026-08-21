@@ -557,3 +557,14 @@ _authStyle.textContent = `
   .dir-search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-tert); font-size:15px; }
 `;
 document.head.appendChild(_authStyle);
+
+// ════════════════════════════════════════════════════════════
+//  GLOBAL EXPORTS
+//  Explicitly attach handlers to window so inline onclick=""
+//  attributes in index.html can always find them, regardless
+//  of how the browser scopes this script file.
+// ════════════════════════════════════════════════════════════
+window.handleSignup       = handleSignup;
+window.handleLogin        = handleLogin;
+window.handleSignOut      = handleSignOut;
+window.handlePasswordReset = handlePasswordReset;
