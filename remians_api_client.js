@@ -14,7 +14,7 @@
 const API = (() => {
 
   // ── REPLACE THIS with your deployed Apps Script URL ──────
-  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwrx56iMW5WheGHd4OXNArVUKZAwWsNLorD3WLX1PYGDxAm74UVrY4_vYNXqu5XqZBtxQ/exec';
+  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwA0Vl3cW-8mJU1lxBBXbz41R3tBjyA4rlKFA__syOcd96GWxPxwMr_56KusQBEzqMHPQ/exec';
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
@@ -90,9 +90,14 @@ const API = (() => {
 
   /** Get a member's tier by Firebase UID — called on every login */
   async function getMemberTier(uid) {
-    if (!uid) return 'public';
-    try { return (await get({ action: 'getMemberTier', uid }))?.tier || 'free'; }
-    catch(e) { return 'free'; }
+    if (!uid) return { tier: 'public', status: 'unknown' };
+    try {
+      const r = await get({ action: 'getMemberTier', uid });
+      // Return the FULL object — firebase_auth.js Gate 2 needs .status, not just .tier
+      return { tier: r?.tier || 'free', status: r?.status || 'pending' };
+    } catch(e) {
+      return { tier: 'free', status: 'pending' };
+    }
   }
 
   // ════════════════════════════════════════════════════════
