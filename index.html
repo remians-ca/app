@@ -984,6 +984,16 @@ function setLogos() {
   <div class="modal rsvp-modal">
     <button class="modal-close" onclick="closeRsvpModal(null,true)"><i class="ti ti-x"></i></button>
 
+    <!-- REGISTRATION CLOSED STATE -->
+    <div id="rsvpClosed" style="display:none" class="rsvp-success">
+      <i class="ti ti-calendar-off" style="color:var(--red)"></i>
+      <h3>Registration is closed</h3>
+      <p>The registration deadline for this event was <strong id="rsvpClosedDate">—</strong>.<br><br>
+      If you still wish to attend, please contact the committee at
+      <strong>remians.ca@gmail.com</strong> — we'll do our best to accommodate you.</p>
+      <button class="rsvp-submit" style="margin-top:20px" onclick="closeRsvpModal(null,true)">Close</button>
+    </div>
+
     <!-- CHECKING STATE -->
     <div id="rsvpChecking" style="display:none" class="rsvp-success">
       <i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i>
@@ -1026,6 +1036,7 @@ function setLogos() {
         <div>
           <div class="rsvp-event-name" id="rsvpEventName">—</div>
           <div class="rsvp-event-date" id="rsvpEventDate">—</div>
+          <div class="rsvp-event-date" id="rsvpEventDue" style="display:none;color:var(--red);font-weight:600"></div>
         </div>
       </div>
 
@@ -1310,7 +1321,7 @@ function renderEvents(events) {
     // Logged-in approved users → RSVP modal; guests → login
     const isLoggedIn = window.currentTier && window.currentTier !== 'public';
     const rsvpBtn = isLoggedIn
-      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModalForEvent(this)" data-event-id="${ev.id}" data-event-title="${(ev.title||'').replace(/"/g,'&quot;')}" data-event-date="${ev.event_date}" data-event-time="${ev.event_time}">RSVP &rarr;</button>`
+      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModalForEvent(this)" data-event-id="${ev.id}" data-event-title="${(ev.title||'').replace(/"/g,'&quot;')}" data-event-date="${ev.event_date}" data-event-time="${ev.event_time}" data-reg-due="${ev.reg_due||''}">RSVP &rarr;</button>`
       : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('login')">RSVP &rarr;</button>`;
     return `
       <div class="ev-card" onclick="openModal('join')">
@@ -1446,6 +1457,22 @@ function showToast(msg) {
    RSVP SYSTEM
 ══════════════════════════════════════ */
 
+// Local calendar date as YYYY-MM-DD (never UTC — avoids the day rollback)
+function todayISO() {
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+
+// "2026-09-05" → "5 September 2026"
+function fmtLongDate(iso) {
+  const d = parseDate(iso);
+  if (!d) return iso || '';
+  const M = ['January','February','March','April','May','June',
+             'July','August','September','October','November','December'];
+  return `${d.getDate()} ${M[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 // Wrapper to safely open RSVP modal from button's data attributes
 // (avoids JSON.stringify in onclick which breaks on special characters)
 function openRsvpModalForEvent(btn) {
@@ -1454,6 +1481,7 @@ function openRsvpModalForEvent(btn) {
     title: btn.dataset.eventTitle,
     event_date: btn.dataset.eventDate,
     event_time: btn.dataset.eventTime,
+    reg_due:    btn.dataset.regDue,
   };
   openRsvpModal(ev);
 }
@@ -1470,6 +1498,19 @@ async function openRsvpModal(ev) {
   if (!window.currentUser) { openModal('login'); return; }
 
   _rsvpEvent = ev;
+
+  // Registration deadline passed? Show that and stop.
+  if (ev.reg_due && todayISO() > ev.reg_due) {
+    document.getElementById('rsvpForm').style.display     = 'none';
+    document.getElementById('rsvpSuccess').style.display  = 'none';
+    document.getElementById('rsvpAlready').style.display  = 'none';
+    document.getElementById('rsvpChecking').style.display = 'none';
+    document.getElementById('rsvpClosedDate').textContent = fmtLongDate(ev.reg_due);
+    document.getElementById('rsvpClosed').style.display   = '';
+    document.getElementById('rsvpOverlay').classList.add('open');
+    return;
+  }
+  document.getElementById('rsvpClosed').style.display = 'none';
 
   // Already registered? Show that instead of the form.
   document.getElementById('rsvpForm').style.display     = 'none';
@@ -1507,6 +1548,12 @@ async function openRsvpModal(ev) {
     : ev.event_date || '';
 
   // Store auto-ref
+  const dueEl = document.getElementById('rsvpEventDue');
+  if (ev.reg_due) {
+    dueEl.textContent   = 'Register by ' + fmtLongDate(ev.reg_due);
+    dueEl.style.display = '';
+  } else { dueEl.style.display = 'none'; }
+
   document.getElementById('rv-autoref').textContent = autoRef;
   document.getElementById('rv-autoref').dataset.ref = autoRef;
 
@@ -1634,7 +1681,9 @@ function submitRsvpForm() {
     const msg = String(err && err.message || '');
     errEl.textContent = msg.indexOf('Already RSVP') !== -1
       ? 'You have already registered for this event.'
-      : (msg || 'Submission failed. Please try again.');
+      : msg.indexOf('Registration closed') !== -1
+        ? msg
+        : (msg || 'Submission failed. Please try again.');
     errEl.style.display = '';
     btn.disabled  = false;
     btn.innerHTML = '<i class="ti ti-calendar-check"></i> Confirm My RSVP';
