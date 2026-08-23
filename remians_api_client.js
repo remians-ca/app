@@ -13,8 +13,18 @@
 
 const API = (() => {
 
-  // ── REPLACE THIS with your deployed Apps Script URL ──────
-  const BASE_URL = 'https://script.google.com/macros/s/AKfycby_KsQbZdZVne4FnhUL0ZmxRU6dkdhXos5W6EmpbvVqKRQ0UDrwQP717N7cKgBR4xqWvg/exec';
+  // ── Apps Script deployment URL ───────────────────────────
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_KsQbZdZVne4FnhUL0ZmxRU6dkdhXos5W6EmpbvVqKRQ0UDrwQP717N7cKgBR4xqWvg/exec';
+
+  // ── CORS proxy toggle ────────────────────────────────────
+  // true  = route through cors-anywhere (requires opt-in at
+  //         https://cors-anywhere.herokuapp.com/corsdemo, expires periodically)
+  // false = talk to Apps Script directly (correct once the script is deployed
+  //         as Web app / Execute as Me / Access: Anyone)
+  const USE_PROXY = true;
+  const PROXY     = 'https://cors-anywhere.herokuapp.com/';
+
+  const BASE_URL = USE_PROXY ? PROXY + SCRIPT_URL : SCRIPT_URL;
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
