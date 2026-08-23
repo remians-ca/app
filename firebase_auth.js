@@ -384,15 +384,12 @@ function updateNavLoggedIn(user) {
   if (loginBtn) {
     loginBtn.textContent = firstName;
     loginBtn.title       = 'Click to sign out';
-    loginBtn.style.color = 'var(--green)';
-    loginBtn.style.fontWeight = '600';
+    loginBtn.classList.add('signed-in');
     loginBtn.onclick     = handleSignOut;
   }
   if (joinBtn) {
     joinBtn.textContent      = 'Sign Out';
-    joinBtn.style.background = 'var(--green)';
-    joinBtn.style.color      = '#fff';
-    joinBtn.style.border     = '1px solid var(--green)';
+    joinBtn.classList.add('signed-in');
     joinBtn.onclick          = handleSignOut;
   }
 }
@@ -402,11 +399,13 @@ function updateNavLoggedOut() {
   const joinBtn  = document.querySelector('.nav-join');
   if (loginBtn) {
     loginBtn.textContent = 'Log in';
+    loginBtn.classList.remove('signed-in');
     loginBtn.style.color = '';
     loginBtn.onclick     = () => openModal('login');
   }
   if (joinBtn) {
     joinBtn.textContent      = 'Join Now';
+    joinBtn.classList.remove('signed-in');
     joinBtn.style.background = '';
     joinBtn.style.color      = '';
     joinBtn.style.border     = '';
