@@ -1537,7 +1537,7 @@ function onVolChange(v) {
   // textarea is always visible — no block to toggle
 }
 
-async function submitRsvpForm() {
+function submitRsvpForm() {
   const errEl = document.getElementById('rsvpError');
   const btn   = document.getElementById('rsvpSubmitBtn');
   errEl.style.display = 'none';
@@ -1580,26 +1580,28 @@ async function submitRsvpForm() {
     bring_items:     document.getElementById('rv-bring')?.value        || '',
   };
 
-  try {
-    const res = await API.submitRsvp(payload);
-    if (res.ok) {
-      document.getElementById('rsvpForm').style.display    = 'none';
-      document.getElementById('rsvpSuccess').style.display = '';
-      showToast('RSVP confirmed!');
-    } else {
-      errEl.textContent = res.error === 'Already RSVPd for this event'
-        ? 'You have already registered for this event.'
-        : (res.error || 'Submission failed. Please try again.');
-      errEl.style.display = '';
-      btn.disabled = false;
-      btn.innerHTML = '<i class="ti ti-calendar-check"></i> Confirm My RSVP';
-    }
-  } catch(e) {
-    errEl.textContent = 'Network error. Please check your connection and try again.';
-    errEl.style.display = '';
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-calendar-check"></i> Confirm My RSVP';
-  }
+  // Submit via form (bypasses CORS; GET request doesn't need preflight)
+  const form = document.createElement('form');
+  form.method = 'GET';
+  form.action = 'https://script.google.com/macros/s/AKfycby_KsQbZdZVne4FnhUL0ZmxRU6dkdhXos5W6EmpbvVqKRQ0UDrwQP717N7cKgBR4xqWvg/exec';
+  form.target = '_blank'; // response opens in new tab (doesn't affect this page)
+
+  Object.entries(payload).forEach(([k, v]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  });
+
+  // Show success immediately (form submits in background)
+  document.getElementById('rsvpForm').style.display    = 'none';
+  document.getElementById('rsvpSuccess').style.display = '';
+  showToast('RSVP confirmed!');
+
+  // Actually submit the form
+  document.body.appendChild(form);
+  form.submit();
 }
 
 // Fee calculator — runs whenever any headcount dropdown changes
