@@ -294,6 +294,12 @@ img{max-width:100%;display:block}
   padding:8px 14px;border-radius:var(--radius-md);cursor:pointer;text-decoration:none;transition:all .15s;
 }
 .ev-rsvp:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.ev-rsvp.is-registered{
+  background:var(--green-soft);border-color:var(--green);color:var(--green);
+  display:flex;align-items:center;gap:5px;
+}
+.ev-rsvp.is-registered:hover{background:var(--green);color:#fff}
+.ev-rsvp.is-guest{color:var(--text-tert)}
 
 .events-sidebar{}
 .events-join-card{
@@ -1347,6 +1353,34 @@ function timeAgo(s) {
 }
 
 /* ── RENDER EVENTS ── */
+/* Event IDs the signed-in member has already registered for. */
+window.myRsvps = new Set();
+
+/* One API call, not one per card. Safe to call any time; no-ops when signed out. */
+async function refreshMyRsvps() {
+  if (!window.currentUser) { window.myRsvps = new Set(); return; }
+  try {
+    const ids = await API.getMyRsvps();
+    window.myRsvps = new Set((ids || []).map(String));
+  } catch (e) {
+    console.warn('[rsvp] could not load registrations:', e.message);
+    window.myRsvps = new Set();   // fail open: show RSVP, the server still blocks duplicates
+  }
+  if (window.allEvents) renderEvents(window.allEvents);
+}
+window.refreshMyRsvps = refreshMyRsvps;
+
+/* Event detail page — placeholder until the real page exists.
+   Swap the body of this function for a navigation when you build it, e.g.
+     location.href = 'event.html?id=' + encodeURIComponent(eventId);
+   Everything else (card click, registered-state button) already routes here. */
+function openEventDetail(eventId) {
+  const ev = (window.allEvents || []).find(x => String(x.id) === String(eventId));
+  console.log('[event] open detail for', eventId, ev);
+  showToast('Event details page coming soon \u2014 "' + ((ev && ev.title) || 'this event') + '"');
+}
+window.openEventDetail = openEventDetail;
+
 function renderEvents(events) {
   window.allEvents = events;  // Store globally for re-render after auth
   const el = document.getElementById('eventList');
@@ -1354,31 +1388,58 @@ function renderEvents(events) {
     el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-tert)"><i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px"></i>No upcoming events. Check back soon!</div>';
     return;
   }
+
+  // Signed-in is decided by the Firebase session, not by tier. Tier resolution
+  // can degrade to 'public' on a transient API failure; the member is still
+  // signed in and should not be shown a login button.
+  const isLoggedIn = !!window.currentUser;
+
   el.innerHTML = events.map(ev => {
     const d   = parseDate(ev.event_date);
     const day = d ? d.getDate() : '?';
     const mon = d ? MONTHS_SHORT[d.getMonth()] : '???';
     const venue = [ev.venue, ev.city].filter(Boolean).join(', ') || 'TBD';
     const time  = cleanTime(ev.event_time);
-    // Logged-in approved users → RSVP modal; guests → login
-    const isLoggedIn = window.currentTier && window.currentTier !== 'public';
-    const rsvpBtn = isLoggedIn
-      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModalForEvent(this)" data-event-id="${ev.id}" data-event-title="${(ev.title||'').replace(/"/g,'&quot;')}" data-event-date="${ev.event_date}" data-event-time="${ev.event_time}" data-reg-due="${ev.reg_due||''}">RSVP &rarr;</button>`
-      : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('login')">RSVP &rarr;</button>`;
-    return `
-      <div class="ev-card" onclick="openModal('join')">
-        <div class="ev-date"><div class="ev-day">${day}</div><div class="ev-month">${mon}</div></div>
-        <div class="ev-info">
-          <div class="ev-title">${ev.title || 'Untitled Event'}</div>
-          <div class="ev-meta">
-            <span><i class="ti ti-map-pin"></i>${venue}</span>
-            ${time ? `<span><i class="ti ti-clock"></i>${time}</span>` : ''}
-          </div>
-        </div>
-        ${rsvpBtn}
-      </div>`;
+    const esc   = v => String(v == null ? '' : v).replace(/"/g, '&quot;');
+    const id    = esc(ev.id);
+
+    const registered = isLoggedIn && window.myRsvps.has(String(ev.id));
+
+    let btn;
+    if (registered) {
+      // Already registered → the useful action is the detail page, not a second RSVP.
+      btn = '<button class="ev-rsvp is-registered" ' +
+            'onclick="event.stopPropagation();openEventDetail(\'' + id + '\')">' +
+            '<i class="ti ti-circle-check"></i>Event Details</button>';
+    } else if (isLoggedIn) {
+      btn = '<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModalForEvent(this)"' +
+            ' data-event-id="' + id + '"' +
+            ' data-event-title="' + esc(ev.title) + '"' +
+            ' data-event-date="' + esc(ev.event_date) + '"' +
+            ' data-event-time="' + esc(ev.event_time) + '"' +
+            ' data-reg-due="' + esc(ev.reg_due) + '">RSVP &rarr;</button>';
+    } else {
+      btn = '<button class="ev-rsvp is-guest" onclick="event.stopPropagation();openModal(\'login\')">Sign in to RSVP</button>';
+    }
+
+    // The card itself always opens the event detail page. It used to be
+    // hardcoded to openModal('join'), which is why signed-in members still
+    // got the signup form when they clicked a card.
+    return '' +
+      '<div class="ev-card" onclick="openEventDetail(\'' + id + '\')">' +
+        '<div class="ev-date"><div class="ev-day">' + day + '</div><div class="ev-month">' + mon + '</div></div>' +
+        '<div class="ev-info">' +
+          '<div class="ev-title">' + (ev.title || 'Untitled Event') + '</div>' +
+          '<div class="ev-meta">' +
+            '<span><i class="ti ti-map-pin"></i>' + venue + '</span>' +
+            (time ? '<span><i class="ti ti-clock"></i>' + time + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        btn +
+      '</div>';
   }).join('');
 }
+window.renderEvents = renderEvents;
 
 /* ── RENDER NEWS ── */
 function renderNews(items) {
@@ -1730,6 +1791,11 @@ function submitRsvpForm() {
 
   // Plain GET fetch — no custom headers, so no CORS preflight
   API.submitRsvp(payload).then(res => {
+    // Flip this card to "Event Details" immediately, without another round trip.
+    if (_rsvpEvent && _rsvpEvent.id) {
+      window.myRsvps.add(String(_rsvpEvent.id));
+      if (window.allEvents) renderEvents(window.allEvents);
+    }
     document.getElementById('rsvpForm').style.display    = 'none';
     document.getElementById('rsvpSuccess').style.display = '';
     const shownRef = (res && res.reference) || etref;
