@@ -54,8 +54,10 @@ auth.onAuthStateChanged(async (user) => {
       }
     }
 
-    if (!memberData) {
-      // Server unreachable. Keep the session; show the public view only.
+    if (!memberData || memberData.status === 'unknown') {
+      // Status could not be determined (server unreachable, or the API could
+      // not identify the caller). This is NOT a rejection — keep the session
+      // and degrade to the public view rather than signing the member out.
       window.currentUser = user;
       window.currentTier = 'public';
       updateNavLoggedIn(user);
