@@ -84,11 +84,13 @@ auth.onAuthStateChanged(async (user) => {
     window.currentUser = user;
     window.currentTier = String(memberData.tier || 'free').trim().toLowerCase();
     updateNavLoggedIn(user);
-    applyTierView(window.currentTier);
 
-    // Load which events this member has already registered for, then
-    // re-render the event list so those cards show "Event Details".
-    if (window.refreshMyRsvps) window.refreshMyRsvps();
+    // Run the authenticated calls in SEQUENCE, not in parallel. The tier
+    // lookup verifies the ID token first and warms the server-side token
+    // cache; every later call is then a cache hit instead of another
+    // outbound verification racing the others.
+    await applyTierView(window.currentTier);
+    if (window.refreshMyRsvps) await window.refreshMyRsvps();
 
   } else {
     if (window.myRsvps) window.myRsvps.clear();
@@ -239,7 +241,7 @@ async function handlePasswordReset() {
 //  TIER-GATED VIEW
 //  Controls what each user tier sees on the page
 // ════════════════════════════════════════════════════════════
-function applyTierView(rawTier) {
+async function applyTierView(rawTier) {
   // Normalise first. The tier arrives from a hand-edited spreadsheet cell,
   // so 'Paid', 'paid ' and 'PAID' must all resolve to the same branch.
   const tier = String(rawTier == null ? 'public' : rawTier).trim().toLowerCase();
@@ -256,7 +258,7 @@ function applyTierView(rawTier) {
     if (window.showToast) {
       showToast('Your membership tier is set to "' + rawTier + '" in the Members sheet \u2014 it should be free, paid, moderator or admin.');
     }
-    return applyTierView('free');
+    return await applyTierView('free');
   }
 
   // ── Directory section ──
@@ -274,12 +276,12 @@ function applyTierView(rawTier) {
   } else if (tier === 'free') {
     show(gateWrap, false); show(dirBasic, true);
     show(dirFull,  false); show(dirSearch, true);
-    loadBasicDirectory();
+    await loadBasicDirectory();
 
   } else {
     show(gateWrap, false); show(dirBasic, false);
     show(dirFull,  true);  show(dirSearch, true);
-    loadFullDirectory();
+    await loadFullDirectory();
   }
 
   // ── Show/hide tier-specific UI elements ──
@@ -302,11 +304,25 @@ async function loadBasicDirectory() {
   if (!el) return;
   el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members\u2026</div>';
   try {
-    const members = await API.getDirectoryBasic();
+    const members = await withAuthRetry(() => API.getDirectoryBasic());
     renderBasicDirectory(members);
   } catch(e) {
     console.error('[directory:basic]', e);
     el.innerHTML = dirErrorHtml(e);
+  }
+}
+
+// A 401 from this backend is transient far more often than it is real: the
+// token is valid, the verification round trip just failed under load. Retry
+// once before showing the member an error wall.
+async function withAuthRetry(fn) {
+  try {
+    return await fn();
+  } catch (e) {
+    if (!/authentication required/i.test(e.message || '')) throw e;
+    console.warn('[api] 401 on first attempt \u2014 retrying once');
+    await new Promise(r => setTimeout(r, 900));
+    return await fn();
   }
 }
 
@@ -315,7 +331,7 @@ async function loadFullDirectory() {
   if (!el) return;
   el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members\u2026</div>';
   try {
-    const members = await API.getDirectoryFull();
+    const members = await withAuthRetry(() => API.getDirectoryFull());
     renderFullDirectory(members);
   } catch(e) {
     console.error('[directory:full]', e);
