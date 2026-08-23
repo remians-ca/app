@@ -984,12 +984,33 @@ function setLogos() {
   <div class="modal rsvp-modal">
     <button class="modal-close" onclick="closeRsvpModal(null,true)"><i class="ti ti-x"></i></button>
 
+    <!-- CHECKING STATE -->
+    <div id="rsvpChecking" style="display:none" class="rsvp-success">
+      <i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i>
+      <h3>Checking your registration…</h3>
+    </div>
+
+    <!-- ALREADY REGISTERED STATE -->
+    <div id="rsvpAlready" style="display:none" class="rsvp-success">
+      <i class="ti ti-user-check"></i>
+      <h3>You're already registered</h3>
+      <p>Our records show you have already registered for this event.<br><br>
+      If you need to change your party size or update any details, please contact the committee at
+      <strong>remians.ca@gmail.com</strong>.</p>
+      <button class="rsvp-submit" style="margin-top:20px" onclick="closeRsvpModal(null,true)">Close</button>
+    </div>
+
     <!-- SUCCESS STATE -->
     <div id="rsvpSuccess" style="display:none" class="rsvp-success">
       <i class="ti ti-circle-check"></i>
-      <h3>You're registered!</h3>
-      <p>Your RSVP has been submitted. We look forward to seeing you at the picnic.<br><br>
-      <strong>Remember:</strong> bring your e-transfer reference number on the day.</p>
+      <h3>Registration received</h3>
+      <p><strong>Your registration will be confirmed once the e-Transfer is received.</strong><br><br>
+      We've emailed you a copy of these details, including your reference number and the amount due.
+      Please check your inbox.</p>
+      <div class="rsvp-ref-box" id="rsvpSuccessRef" style="display:none;margin-top:18px">
+        <div class="rsvp-ref-num" id="rsvpSuccessRefNum">—</div>
+        <div class="rsvp-ref-lbl">Your reference number</div>
+      </div>
     </div>
 
     <!-- FORM STATE -->
@@ -1445,10 +1466,31 @@ function genRef() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-function openRsvpModal(ev) {
+async function openRsvpModal(ev) {
   if (!window.currentUser) { openModal('login'); return; }
 
   _rsvpEvent = ev;
+
+  // Already registered? Show that instead of the form.
+  document.getElementById('rsvpForm').style.display     = 'none';
+  document.getElementById('rsvpSuccess').style.display  = 'none';
+  document.getElementById('rsvpAlready').style.display  = 'none';
+  document.getElementById('rsvpChecking').style.display = '';
+  document.getElementById('rsvpOverlay').classList.add('open');
+
+  try {
+    const r = await API.checkRsvp(ev.id, window.currentUser.uid);
+    if (r && r.rsvpd) {
+      document.getElementById('rsvpChecking').style.display = 'none';
+      document.getElementById('rsvpAlready').style.display  = '';
+      return;
+    }
+  } catch (e) {
+    // If the check fails, fall through to the form — the server-side
+    // duplicate guard is the real protection.
+  }
+  document.getElementById('rsvpChecking').style.display = 'none';
+  document.getElementById('rsvpForm').style.display     = '';
   const autoRef = genRef();
 
   // Populate read-only fields
@@ -1469,8 +1511,6 @@ function openRsvpModal(ev) {
   document.getElementById('rv-autoref').dataset.ref = autoRef;
 
   // Reset form state
-  document.getElementById('rsvpSuccess').style.display  = 'none';
-  document.getElementById('rsvpForm').style.display     = '';
   document.getElementById('rsvpError').style.display    = 'none';
   document.getElementById('rsvpSubmitBtn').disabled     = false;
   document.getElementById('rsvpSubmitBtn').textContent  = 'Confirm My RSVP';
@@ -1501,7 +1541,7 @@ function openRsvpModal(ev) {
   });
 
   // Inject logo
-  document.querySelectorAll('#rsvpOverlay img[data-logo-mark]').forEach(img => {
+  document.querySelectorAll('#rsvpOverlay img[data-logo]').forEach(img => {
     img.src = LOGO_MARK;
   });
 
@@ -1581,10 +1621,15 @@ function submitRsvpForm() {
   };
 
   // Plain GET fetch — no custom headers, so no CORS preflight
-  API.submitRsvp(payload).then(() => {
+  API.submitRsvp(payload).then(res => {
     document.getElementById('rsvpForm').style.display    = 'none';
     document.getElementById('rsvpSuccess').style.display = '';
-    showToast('RSVP confirmed!');
+    const shownRef = (res && res.reference) || etref;
+    if (shownRef) {
+      document.getElementById('rsvpSuccessRefNum').textContent = shownRef;
+      document.getElementById('rsvpSuccessRef').style.display  = '';
+    }
+    showToast('Registration received');
   }).catch(err => {
     const msg = String(err && err.message || '');
     errEl.textContent = msg.indexOf('Already RSVP') !== -1
