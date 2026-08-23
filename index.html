@@ -1291,8 +1291,8 @@ function setLogos() {
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
 
-<script src="remians_api_client.js?v=7"></script>
-<script src="firebase_auth.js?v=7"></script>
+<script src="remians_api_client.js?v=9"></script>
+<script src="firebase_auth.js?v=9"></script>
 <script>
 /* ── LOGO INJECT ── */
 window.addEventListener('DOMContentLoaded', setLogos);
@@ -1375,6 +1375,9 @@ window.refreshMyRsvps = refreshMyRsvps;
      location.href = 'event.html?id=' + encodeURIComponent(eventId);
    Everything else (card click, registered-state button) already routes here. */
 function openEventDetail(eventId) {
+  // Detail is members-only, in line with the rest of the site. Delete these two
+  // lines if you later want event pages public (shareable links, SEO).
+  if (!window.currentUser) { openModal('login'); return; }
   const ev = (window.allEvents || []).find(x => String(x.id) === String(eventId));
   console.log('[event] open detail for', eventId, ev);
   showToast('Event details page coming soon \u2014 "' + ((ev && ev.title) || 'this event') + '"');
