@@ -553,9 +553,35 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
 .toast i{color:var(--gold-lt);font-size:17px}
 
 /* ═════════ RESPONSIVE ═════════ */
+/* ═════════ MOBILE NAV ═════════ */
+.nav-burger{
+  display:none;align-items:center;justify-content:center;
+  width:42px;height:42px;margin-left:10px;flex-shrink:0;
+  background:transparent;border:1px solid var(--hairline-strong);
+  border-radius:var(--radius-md);color:var(--ink);
+  font-size:22px;cursor:pointer;transition:all .15s;
+}
+.nav-burger:hover{border-color:var(--green);color:var(--green)}
+.nav-mobile{
+  display:none;flex-direction:column;
+  border-top:1px solid var(--hairline-soft);
+  background:var(--white);
+  padding:8px 22px 14px;
+}
+.nav-mobile-link{
+  padding:13px 4px;font-family:var(--sans);font-size:15px;font-weight:500;
+  color:var(--ink);text-decoration:none;
+  border-bottom:1px solid var(--hairline-soft);
+}
+.nav-mobile-link:last-child{border-bottom:none}
+.nav-mobile-link:active{color:var(--green)}
+
 @media(max-width:900px){
   .nav-links{display:none}
   .nav-wordmark small{display:none}
+  .nav-burger{display:flex}
+  .nav-mobile.open{display:flex}
+  .nav-actions .nav-login{display:none}
   .hero-inner{grid-template-columns:1fr;gap:36px;text-align:center}
   .hero-logo-wrap{order:-1}
   .hero-flag-badges,.hero-ctas,.hero-proof{justify-content:center}
@@ -632,6 +658,16 @@ function setLogos() {
       <span class="nav-login" onclick="openModal('login')">Log in</span>
       <button class="nav-join" onclick="openModal('join')">Join Now</button>
     </div>
+    <button class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false" onclick="toggleMobileMenu()">
+      <i class="ti ti-menu-2"></i>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a class="nav-mobile-link" href="#about"     onclick="closeMobileMenu()">About</a>
+    <a class="nav-mobile-link" href="#news"      onclick="closeMobileMenu()">News</a>
+    <a class="nav-mobile-link" href="#events"    onclick="closeMobileMenu()">Events</a>
+    <a class="nav-mobile-link" href="#welfare"   onclick="closeMobileMenu()">Welfare</a>
+    <a class="nav-mobile-link" href="#directory" onclick="closeMobileMenu()">Directory</a>
   </div>
 </nav>
 
@@ -1472,6 +1508,25 @@ function fmtLongDate(iso) {
              'July','August','September','October','November','December'];
   return `${d.getDate()} ${M[d.getMonth()]} ${d.getFullYear()}`;
 }
+
+/* ── MOBILE NAV ── */
+function toggleMobileMenu() {
+  const m = document.getElementById('navMobile');
+  const b = document.getElementById('navBurger');
+  const open = m.classList.toggle('open');
+  b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  b.innerHTML = open ? '<i class="ti ti-x"></i>' : '<i class="ti ti-menu-2"></i>';
+}
+function closeMobileMenu() {
+  const m = document.getElementById('navMobile');
+  const b = document.getElementById('navBurger');
+  if (!m) return;
+  m.classList.remove('open');
+  b.setAttribute('aria-expanded', 'false');
+  b.innerHTML = '<i class="ti ti-menu-2"></i>';
+}
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu  = closeMobileMenu;
 
 // Wrapper to safely open RSVP modal from button's data attributes
 // (avoids JSON.stringify in onclick which breaks on special characters)
