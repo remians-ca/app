@@ -14,7 +14,7 @@
 const API = (() => {
 
   // ── REPLACE THIS with your deployed Apps Script URL ──────
-  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwlZuNTbG8NETZ_hkcEuK3u_uIWvpR9YXtBic4XaH-y816Ml2ds5yCq9M3sQIEKXX0d9g/exec';
+  const BASE_URL = 'https://script.google.com/macros/s/AKfycbwrx56iMW5WheGHd4OXNArVUKZAwWsNLorD3WLX1PYGDxAm74UVrY4_vYNXqu5XqZBtxQ/exec';
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
@@ -193,6 +193,15 @@ const API = (() => {
   // ════════════════════════════════════════════════════════
   //  PUBLIC SURFACE
   // ════════════════════════════════════════════════════════
+  // ── RSVP ────────────────────────────────────────────────
+  async function submitRsvp(data) {
+    return post({ action: 'submitRsvp', ...data });
+  }
+  async function checkRsvp(eventId, uid) {
+    if (!eventId || !uid) return { rsvpd: false };
+    return get({ action: 'checkRsvp', event_id: eventId, uid });
+  }
+
   return {
     // Public
     getEvents, getNews, getCommittee,
@@ -202,6 +211,8 @@ const API = (() => {
     getMemberTier, getDirectoryBasic,
     // Paid member
     getDirectoryFull, getMemberProfile,
+    // RSVP
+    submitRsvp, checkRsvp,
     // Moderator
     createEvent, updateEvent, deleteEvent,
     createNews, updateNews, deleteNews,
