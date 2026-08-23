@@ -66,7 +66,10 @@ auth.onAuthStateChanged(async (user) => {
       return;
     }
 
-    if (memberData.status !== 'approved') {
+    // Normalise before comparing — a stray space or capital letter in the
+    // Sheet cell ('Approved', 'approved ') must not read as "not approved".
+    const _status = String(memberData.status || '').trim().toLowerCase();
+    if (_status !== 'approved') {
       // Explicitly not approved — sign them out and explain
       await auth.signOut();
       window.currentUser = null;
@@ -79,11 +82,16 @@ auth.onAuthStateChanged(async (user) => {
 
     // ── Both gates passed — grant access ────────────────────
     window.currentUser = user;
-    window.currentTier = memberData.tier || 'free';
+    window.currentTier = String(memberData.tier || 'free').trim().toLowerCase();
     updateNavLoggedIn(user);
     applyTierView(window.currentTier);
 
+    // Load which events this member has already registered for, then
+    // re-render the event list so those cards show "Event Details".
+    if (window.refreshMyRsvps) window.refreshMyRsvps();
+
   } else {
+    if (window.myRsvps) window.myRsvps.clear();
     window.currentUser = null;
     window.currentTier = 'public';
     updateNavLoggedOut();
@@ -231,47 +239,56 @@ async function handlePasswordReset() {
 //  TIER-GATED VIEW
 //  Controls what each user tier sees on the page
 // ════════════════════════════════════════════════════════════
-function applyTierView(tier) {
+function applyTierView(rawTier) {
+  // Normalise first. The tier arrives from a hand-edited spreadsheet cell,
+  // so 'Paid', 'paid ' and 'PAID' must all resolve to the same branch.
+  const tier = String(rawTier == null ? 'public' : rawTier).trim().toLowerCase();
+
+  const PAID_TIERS = ['paid', 'admin', 'moderator'];
+  const KNOWN      = ['public', 'free'].concat(PAID_TIERS);
+
+  if (!KNOWN.includes(tier)) {
+    // Previously this fell through every branch and did nothing at all:
+    // no gate, no directory, no error. Fail loudly instead, and degrade to
+    // the least-privileged member view so an approved member is never locked out.
+    console.warn('[applyTierView] Unrecognised tier value in the Members sheet:',
+                 JSON.stringify(rawTier), '\u2014 falling back to "free".');
+    if (window.showToast) {
+      showToast('Your membership tier is set to "' + rawTier + '" in the Members sheet \u2014 it should be free, paid, moderator or admin.');
+    }
+    return applyTierView('free');
+  }
+
   // ── Directory section ──
   const gateWrap    = document.getElementById('gateWrap');
   const dirBasic    = document.getElementById('dirBasic');
   const dirFull     = document.getElementById('dirFull');
   const dirSearch   = document.getElementById('dirSearch');
 
+  const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
+
   if (tier === 'public') {
-    // Show lock gate, hide directory
-    if (gateWrap)  gateWrap.style.display  = '';
-    if (dirBasic)  dirBasic.style.display  = 'none';
-    if (dirFull)   dirFull.style.display   = 'none';
-    if (dirSearch) dirSearch.style.display = 'none';
+    show(gateWrap, true);  show(dirBasic, false);
+    show(dirFull,  false); show(dirSearch, false);
 
   } else if (tier === 'free') {
-    // Hide gate, show basic directory (name/batch/city only)
-    if (gateWrap)  gateWrap.style.display  = 'none';
-    if (dirBasic)  dirBasic.style.display  = '';
-    if (dirFull)   dirFull.style.display   = 'none';
-    if (dirSearch) dirSearch.style.display = '';
+    show(gateWrap, false); show(dirBasic, true);
+    show(dirFull,  false); show(dirSearch, true);
     loadBasicDirectory();
 
-  } else if (['paid','admin','moderator'].includes(tier)) {
-    // Hide gate, show full directory
-    if (gateWrap)  gateWrap.style.display  = 'none';
-    if (dirBasic)  dirBasic.style.display  = 'none';
-    if (dirFull)   dirFull.style.display   = '';
-    if (dirSearch) dirSearch.style.display = '';
+  } else {
+    show(gateWrap, false); show(dirBasic, false);
+    show(dirFull,  true);  show(dirSearch, true);
     loadFullDirectory();
   }
 
   // ── Show/hide tier-specific UI elements ──
   document.querySelectorAll('[data-tier]').forEach(el => {
-    const required = el.dataset.tier.split(',').map(t => t.trim());
+    const required = el.dataset.tier.split(',').map(t => t.trim().toLowerCase());
     el.style.display = required.includes(tier) || required.includes('all') ? '' : 'none';
   });
 
   // ── Re-render events now that tier is known ──
-  // This ensures RSVP buttons show the correct action (RSVP form for logged-in,
-  // login screen for guests) based on currentTier. Events may have been rendered
-  // before auth completed, showing login buttons for everyone.
   if (window.allEvents && window.renderEvents) {
     window.renderEvents(window.allEvents);
   }
@@ -283,25 +300,54 @@ function applyTierView(tier) {
 async function loadBasicDirectory() {
   const el = document.getElementById('dirBasic');
   if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members…</div>';
+  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members\u2026</div>';
   try {
     const members = await API.getDirectoryBasic();
     renderBasicDirectory(members);
   } catch(e) {
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Could not load directory.</div>';
+    console.error('[directory:basic]', e);
+    el.innerHTML = dirErrorHtml(e);
   }
 }
 
 async function loadFullDirectory() {
   const el = document.getElementById('dirFull');
   if (!el) return;
-  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members…</div>';
+  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Loading members\u2026</div>';
   try {
     const members = await API.getDirectoryFull();
     renderFullDirectory(members);
   } catch(e) {
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-tert)">Could not load directory.</div>';
+    console.error('[directory:full]', e);
+    // A tier mismatch between the Sheet and the server check should degrade to
+    // the basic directory rather than showing an approved member an error wall.
+    if (/paid membership/i.test(e.message || '')) {
+      el.style.display = 'none';
+      const basic = document.getElementById('dirBasic');
+      if (basic) { basic.style.display = ''; loadBasicDirectory(); }
+      return;
+    }
+    el.innerHTML = dirErrorHtml(e);
   }
+}
+
+// The old code collapsed every failure into one opaque sentence. Keep the
+// server's own message on screen \u2014 401 vs 403 vs 500 need different fixes.
+function dirErrorHtml(e) {
+  const msg = (e && e.message) ? e.message : 'Unknown error';
+  let hint = '';
+  if (/authentication required/i.test(msg)) {
+    hint = 'The Apps Script could not verify your login token. Check that the deployed version is current and that the Firebase API key in the script is not referrer-restricted.';
+  } else if (/paid membership/i.test(msg)) {
+    hint = 'Your <code>tier</code> cell in the Members sheet is not paid/moderator/admin.';
+  } else if (/failed to fetch|networkerror/i.test(msg)) {
+    hint = 'The Apps Script URL is unreachable. Confirm BASE_URL in remians_api_client.js matches the current deployment.';
+  }
+  return '<div style="text-align:center;padding:24px;color:var(--text-tert);line-height:1.6">' +
+         'Could not load the directory.<br>' +
+         '<code style="font-size:12px;color:var(--red,#C64A3B)">' + msg + '</code>' +
+         (hint ? '<div style="font-size:12px;margin-top:8px;max-width:420px;margin-left:auto;margin-right:auto">' + hint + '</div>' : '') +
+         '</div>';
 }
 
 function renderBasicDirectory(members) {
@@ -593,3 +639,7 @@ window.handleSignup       = handleSignup;
 window.handleLogin        = handleLogin;
 window.handleSignOut      = handleSignOut;
 window.handlePasswordReset = handlePasswordReset;
+window.applyTierView      = applyTierView;
+window.loadBasicDirectory = loadBasicDirectory;
+window.loadFullDirectory  = loadFullDirectory;
+window.filterDirectory    = filterDirectory;
