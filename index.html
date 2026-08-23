@@ -463,7 +463,7 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
 /* ═════════ RSVP MODAL ═════════ */
 .rsvp-modal{max-width:560px}
 .rsvp-logo{text-align:center;margin-bottom:8px}
-.rsvp-logo img{height:44px;width:auto;object-fit:contain;margin:0 auto}
+.rsvp-logo img{height:72px;width:auto;object-fit:contain;margin:0 auto}
 .rsvp-event-badge{
   display:flex;align-items:center;gap:10px;
   background:var(--green-soft);border:1px solid var(--hairline-strong);
@@ -514,7 +514,24 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
 .rsvp-success i{font-size:52px;color:var(--green);display:block;margin-bottom:16px}
 .rsvp-success h3{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);margin-bottom:10px}
 .rsvp-success p{font-size:14px;color:var(--text-sec);line-height:1.6}
-.sel-num{
+.rsvp-fee-box{
+  margin-top:16px;background:var(--green-deep);border-radius:var(--radius-lg);
+  padding:18px 20px;color:#fff;
+}
+.rsvp-fee-breakdown{
+  font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;
+  min-height:20px;
+}
+.rsvp-fee-breakdown strong{color:#fff}
+.rsvp-fee-total{
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,.2);padding-top:12px;margin-bottom:10px;
+}
+.rsvp-fee-total span:first-child{font-size:14px;font-weight:600;color:rgba(255,255,255,.85)}
+.rsvp-fee-amount{
+  font-family:var(--serif);font-size:38px;font-weight:700;color:#fff;line-height:1;
+}
+.rsvp-fee-note{font-size:11.5px;color:rgba(255,255,255,.6);line-height:1.5}
   width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);
   padding:10px 13px;border:1px solid var(--hairline-strong);border-radius:var(--radius-md);
   background:var(--white);outline:none;transition:border-color .15s;
@@ -974,7 +991,7 @@ function setLogos() {
 
     <!-- FORM STATE -->
     <div id="rsvpForm">
-      <div class="rsvp-logo"><img data-logo-mark src="" alt="Remians Canada"/></div>
+      <div class="rsvp-logo"><img data-logo src="" alt="Remians Canada"/></div>
       <div style="text-align:center;margin-bottom:16px">
         <div style="font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink)">Event Registration</div>
         <div style="font-size:12px;color:var(--text-tert);margin-top:2px">Remians Canada</div>
@@ -1007,7 +1024,7 @@ function setLogos() {
       <div class="rsvp-section">
         <div class="rsvp-section-title">Payment Confirmation</div>
         <div class="rsvp-note">
-          <strong>Interac e-Transfer:</strong> Send your fee to <strong>remians.ca@gmail.com</strong> with your Full Name and number of participants in the message. Set the security answer to <strong>"DRMC"</strong>. Any donation is also welcome!
+          <strong>Interac e-Transfer:</strong> Send your fee to <strong>remians.ca@gmail.com</strong>. Set the security answer to <strong>"DRMC"</strong>. Any donation is also welcome! If you use a different email address other than your login email, please let us know separately.
         </div>
         <div class="fg">
           <label class="fl">Have you sent the e-Transfer? <span style="color:var(--red)">*</span></label>
@@ -1048,7 +1065,7 @@ function setLogos() {
           <div class="fg">
             <label class="fl">Adult Male (18+) <span style="color:var(--red)">*</span></label>
             <div style="font-size:11px;color:var(--text-tert);margin-bottom:4px">Including yourself</div>
-            <select id="rv-am" class="sel-num">
+            <select id="rv-am" class="sel-num" onchange="calcFee()">
               <option value="1">1</option><option value="2">2</option><option value="3">3</option>
               <option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
@@ -1056,7 +1073,7 @@ function setLogos() {
           <div class="fg">
             <label class="fl">Adult Female (18+)</label>
             <div style="font-size:11px;color:var(--text-tert);margin-bottom:4px">Including your spouse</div>
-            <select id="rv-af" class="sel-num">
+            <select id="rv-af" class="sel-num" onchange="calcFee()">
               <option value="0">0</option><option value="1">1</option><option value="2">2</option>
               <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
@@ -1065,25 +1082,35 @@ function setLogos() {
         <div class="rsvp-row triple">
           <div class="fg">
             <label class="fl">Kids Male (5–18)</label>
-            <select id="rv-km" class="sel-num">
+            <select id="rv-km" class="sel-num" onchange="calcFee()">
               <option value="0">0</option><option value="1">1</option><option value="2">2</option>
               <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
           </div>
           <div class="fg">
             <label class="fl">Kids Female (5–18)</label>
-            <select id="rv-kf" class="sel-num">
+            <select id="rv-kf" class="sel-num" onchange="calcFee()">
               <option value="0">0</option><option value="1">1</option><option value="2">2</option>
               <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
           </div>
           <div class="fg">
             <label class="fl">Age 0–5</label>
-            <select id="rv-baby" class="sel-num">
+            <select id="rv-baby" class="sel-num" onchange="calcFee()">
               <option value="0">0</option><option value="1">1</option><option value="2">2</option>
               <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
           </div>
+        </div>
+
+        <!-- Live fee calculator -->
+        <div class="rsvp-fee-box" id="rsvpFeeBox">
+          <div class="rsvp-fee-breakdown" id="rsvpFeeBreakdown"></div>
+          <div class="rsvp-fee-total">
+            <span>Total Registration Fee</span>
+            <span class="rsvp-fee-amount" id="rsvpFeeAmount">$30</span>
+          </div>
+          <div class="rsvp-fee-note">Adults 18+ = $30 · Kids 5–18 = $20 · Age 0–5 = free. Any amount above the total is counted as a donation — thank you!</div>
         </div>
       </div>
 
@@ -1148,7 +1175,7 @@ function setLogos() {
       <div class="rsvp-section">
         <div class="rsvp-section-title">Volunteer Support</div>
         <div class="fg">
-          <label class="fl">Are you willing to volunteer?</label>
+          <label class="fl">Are you willing to actively volunteer?</label>
           <div class="radio-group">
             <label class="radio-opt" id="rv-vol-yes-lbl">
               <input type="radio" name="rv-vol" value="yes" onchange="onVolChange('yes')"/>
@@ -1160,10 +1187,12 @@ function setLogos() {
             </label>
           </div>
         </div>
-        <div id="rv-vol-block" style="display:none;margin-top:10px">
+        <!-- Always visible regardless of volunteer answer -->
+        <div style="margin-top:14px">
           <div class="fg">
-            <label class="fl">What can you bring or contribute?</label>
-            <textarea id="rv-bring" class="fi" rows="3" placeholder="e.g. chairs, tent, photography, kids games…" style="resize:vertical;line-height:1.5"></textarea>
+            <label class="fl">What can you bring or contribute? <span style="font-weight:400;color:var(--text-tert)">(optional)</span></label>
+            <div style="font-size:11px;color:var(--text-tert);margin-bottom:6px">Even if you're not actively volunteering, you're welcome to bring items or offer a service. e.g. chairs, tent, kids games, photography, food.</div>
+            <textarea id="rv-bring" class="fi" rows="3" placeholder="e.g. folding chairs, a canopy tent, my DSLR camera…" style="resize:vertical;line-height:1.5"></textarea>
           </div>
         </div>
       </div>
@@ -1448,9 +1477,9 @@ function openRsvpModal(ev) {
     'input[name="rv-offer"][value="no"],input[name="rv-vol"][value="no"]')
     .forEach(r => r.checked = true);
 
-  // Hide conditional blocks
+  // Hide conditional blocks (rv-vol-block removed — textarea is always visible now)
   ['rv-paid-yes-block','rv-paid-no-block',
-   'rv-need-block','rv-offer-block','rv-vol-block'].forEach(id => {
+   'rv-need-block','rv-offer-block'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -1461,6 +1490,7 @@ function openRsvpModal(ev) {
   });
 
   document.getElementById('rsvpOverlay').classList.add('open');
+  calcFee(); // show fee for default headcount (1 adult male)
 }
 
 function closeRsvpModal(e, force) {
@@ -1488,7 +1518,7 @@ function onOfferRideChange(v) {
 }
 function onVolChange(v) {
   _setRadio('rv-vol-yes-lbl','rv-vol-no-lbl', v);
-  document.getElementById('rv-vol-block').style.display = v==='yes' ? '' : 'none';
+  // textarea is always visible — no block to toggle
 }
 
 async function submitRsvpForm() {
@@ -1555,6 +1585,30 @@ async function submitRsvpForm() {
   }
 }
 
+// Fee calculator — runs whenever any headcount dropdown changes
+function calcFee() {
+  const am   = parseInt(document.getElementById('rv-am')?.value)   || 0;
+  const af   = parseInt(document.getElementById('rv-af')?.value)   || 0;
+  const km   = parseInt(document.getElementById('rv-km')?.value)   || 0;
+  const kf   = parseInt(document.getElementById('rv-kf')?.value)   || 0;
+  const baby = parseInt(document.getElementById('rv-baby')?.value) || 0;
+
+  const adults = am + af;
+  const kids   = km + kf;
+  const total  = (adults * 30) + (kids * 20);  // age 0-5 = $0
+
+  const bd = document.getElementById('rsvpFeeBreakdown');
+  const fa = document.getElementById('rsvpFeeAmount');
+  if (!bd || !fa) return;
+
+  const parts = [];
+  if (adults > 0) parts.push(`${adults} adult${adults>1?'s':''} × $30 = <strong>$${adults*30}</strong>`);
+  if (kids   > 0) parts.push(`${kids} kid${kids>1?'s':''} (5–18) × $20 = <strong>$${kids*20}</strong>`);
+  if (baby   > 0) parts.push(`${baby} child${baby>1?'ren':''} (0–5) = <strong>Free</strong>`);
+  bd.innerHTML = parts.join('<br>');
+  fa.textContent = `$${total}`;
+}
+
 // Expose to global scope
 window.openRsvpModal    = openRsvpModal;
 window.closeRsvpModal   = closeRsvpModal;
@@ -1563,6 +1617,7 @@ window.onNeedRideChange = onNeedRideChange;
 window.onOfferRideChange= onOfferRideChange;
 window.onVolChange      = onVolChange;
 window.submitRsvpForm   = submitRsvpForm;
+window.calcFee          = calcFee;
 const _s = document.createElement('style');
 _s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 document.head.appendChild(_s);
