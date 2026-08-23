@@ -21,7 +21,7 @@ const API = (() => {
   //         https://cors-anywhere.herokuapp.com/corsdemo, expires periodically)
   // false = talk to Apps Script directly (correct once the script is deployed
   //         as Web app / Execute as Me / Access: Anyone)
-  const USE_PROXY = true;
+  const USE_PROXY = false;
   const PROXY     = 'https://cors-anywhere.herokuapp.com/';
 
   const BASE_URL = USE_PROXY ? PROXY + SCRIPT_URL : SCRIPT_URL;
