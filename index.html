@@ -532,14 +532,17 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
   font-family:var(--serif);font-size:38px;font-weight:700;color:#fff;line-height:1;
 }
 .rsvp-fee-note{font-size:11.5px;color:rgba(255,255,255,.6);line-height:1.5}
+.sel-num{
   width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);
-  padding:10px 13px;border:1px solid var(--hairline-strong);border-radius:var(--radius-md);
-  background:var(--white);outline:none;transition:border-color .15s;
-  -webkit-appearance:none;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235D5B54' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+  padding:11px 14px;border:1px solid var(--hairline-strong);border-radius:var(--radius-md);
+  background:var(--white);outline:none;transition:all .15s;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232F6B4E' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:38px;background-size:14px;
+  font-weight:500;
 }
-.sel-num:focus{border-color:var(--green)}
+.sel-num:hover{border-color:var(--green);background-color:rgba(47, 107, 78, 0.02)}
+.sel-num:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(47, 107, 78, 0.1)}
 .toast{
   position:fixed;bottom:24px;right:24px;z-index:2000;
   background:var(--green-deep);color:#fff;padding:13px 18px;border-radius:var(--radius-md);
@@ -1118,7 +1121,7 @@ function setLogos() {
       <div class="rsvp-section">
         <div class="rsvp-section-title">Ride Sharing</div>
         <div class="fg">
-          <label class="fl">Do you need a ride?</label>
+          <label class="fl">Do you need a ride? <span style="font-weight:400;color:var(--text-tert);font-size:12px">(not guaranteed)</span></label>
           <div class="radio-group">
             <label class="radio-opt" id="rv-need-yes-lbl">
               <input type="radio" name="rv-need" value="yes" onchange="onNeedRideChange('yes')"/>
