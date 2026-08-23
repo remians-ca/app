@@ -34,16 +34,28 @@ const API = (() => {
       const u = window.firebase && firebase.auth && firebase.auth().currentUser;
       return u ? await u.getIdToken() : '';
     } catch (e) {
+      // Silently returning '' here sends an unauthenticated request that the
+      // server answers with 401 - a failure that looks nothing like its cause.
+      console.warn('[api] could not obtain ID token:', e && e.message);
       return '';
     }
   }
 
   // ── Internal fetch helpers ────────────────────────────────
+  // Routes that need no identity at all. Sending a token with these made the
+  // server verify it once per call - five extra round trips to Google on every
+  // page load, all racing each other.
+  const PUBLIC_ACTIONS = new Set([
+    'getEvents', 'getNews', 'getCommittee', 'getWelfareStats', 'getGallery'
+  ]);
+
   async function get(params = {}) {
     const url = new URL(BASE_URL);
     Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-    const t = await idToken();
-    if (t) url.searchParams.set('idToken', t);
+    if (!PUBLIC_ACTIONS.has(params.action)) {
+      const t = await idToken();
+      if (t) url.searchParams.set('idToken', t);
+    }
     const res  = await fetch(url.toString());
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'API error');
