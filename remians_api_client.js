@@ -15,8 +15,6 @@ const API = (() => {
 
   // ── REPLACE THIS with your deployed Apps Script URL ──────
   const BASE_URL = 'https://script.google.com/macros/s/AKfycbwlZuNTbG8NETZ_hkcEuK3u_uIWvpR9YXtBic4XaH-y816Ml2ds5yCq9M3sQIEKXX0d9g/exec';
- 
-  
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
@@ -197,7 +195,8 @@ const API = (() => {
   // ════════════════════════════════════════════════════════
   // ── RSVP ────────────────────────────────────────────────
   async function submitRsvp(data) {
-    return post({ action: 'submitRsvp', ...data });
+    // Use GET with query parameters to avoid CORS preflight (POST with JSON triggers preflight)
+    return get({ action: 'submitRsvp', ...data });
   }
   async function checkRsvp(eventId, uid) {
     if (!eventId || !uid) return { rsvpd: false };
