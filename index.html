@@ -1559,6 +1559,7 @@ async function submitRsvpForm() {
     : autoRef;
 
   const payload = {
+    uid:             window.currentUser?.uid,
     event_id:        _rsvpEvent.id,
     name:            document.getElementById('rv-name').value,
     email:           document.getElementById('rv-email').value,
