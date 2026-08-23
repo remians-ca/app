@@ -288,7 +288,7 @@ function getEvents() {
       venue:       r.venue,
       city:        r.city,
       description: r.description,
-      yapla_url:   r.yapla_url,
+      reg_due:     fmtDate(r.reg_due),
       capacity:    r.capacity,
       tag:         r.tag,
     }));
@@ -572,7 +572,7 @@ function createEvent(body) {
 
   const id = generateId();
   // Events columns: id, title, event_date, event_time, venue, city,
-  //   description, yapla_url, capacity, tag, status, created_date, created_by
+  //   description, reg_due, capacity, tag, status, created_date, created_by
   getSheet(SHEET.EVENTS).appendRow([
     id,
     body.title,
@@ -581,7 +581,7 @@ function createEvent(body) {
     body.venue,
     body.city,
     body.description || '',
-    body.yapla_url || '',
+    body.reg_due || '',
     body.capacity || '',
     body.tag || 'social',
     body.status || 'published',
@@ -595,7 +595,7 @@ function createEvent(body) {
 // ── UPDATE EVENT (admin/moderator) ────────────────────────
 function updateEvent(body) {
   const fields = ['title','event_date','event_time','venue','city',
-                  'description','yapla_url','capacity','tag','status'];
+                  'description','reg_due','capacity','tag','status'];
   return updateSheetRow(SHEET.EVENTS, body.eventId, body, fields);
 }
 
@@ -832,7 +832,7 @@ function setupSheets() {
     ],
     'Events': [
       'id','title','event_date','event_time','venue','city',
-      'description','yapla_url','capacity','tag','status',
+      'description','reg_due','capacity','tag','status',
       'created_date','created_by'
     ],
     'News': [
@@ -881,7 +881,7 @@ function setupSheets() {
       '2025-08-17', '12:00 PM',
       'Chinguacousy Park', 'Brampton',
       'Annual summer picnic for all Remians Canada members and families.',
-      '', // yapla_url — add your Yapla link here
+      '', // reg_due — registration deadline, yyyy-mm-dd
       '200', 'social', 'published',
       new Date().toISOString().split('T')[0],
       'admin'
@@ -949,6 +949,12 @@ function submitRsvp(body, uid) {
   const ss    = SpreadsheetApp.getActive();
   const sheet = ss.getSheetByName('RSVPs');
   const TZ    = ss.getSpreadsheetTimeZone();
+
+  // ── Registration deadline (server-side; frontend gating is cosmetic) ──
+  const due = getEventRegDue(body.event_id);
+  if (due && Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd') > due) {
+    return error('Registration closed on ' + due, 410);
+  }
 
   // Check for duplicate RSVP (same uid + event)
   const existing = sheet.getDataRange().getValues();
@@ -1020,6 +1026,28 @@ function submitRsvp(body, uid) {
     reference: ref,
     fee: fee
   });
+}
+
+function getEventRegDue(eventId) {
+  try {
+    const ss    = SpreadsheetApp.getActive();
+    const TZ    = ss.getSpreadsheetTimeZone();
+    const sheet = ss.getSheetByName(SHEET.EVENTS);
+    const data  = sheet.getDataRange().getValues();
+    const idCol = data[0].indexOf('id');
+    const dueCol= data[0].indexOf('reg_due');
+    if (dueCol === -1) return '';
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][idCol] === eventId) {
+        const v = data[i][dueCol];
+        if (!v) return '';
+        return (v instanceof Date)
+          ? Utilities.formatDate(v, TZ, 'yyyy-MM-dd')
+          : String(v);
+      }
+    }
+  } catch (e) {}
+  return '';
 }
 
 function getEventTitle(eventId) {
