@@ -460,7 +460,69 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
 .fsubmit:hover{background:var(--green-press)}
 .modal-note{font-size:11.5px;color:var(--text-tert);line-height:1.5;text-align:center;margin-top:14px}
 
-/* ═════════ TOAST ═════════ */
+/* ═════════ RSVP MODAL ═════════ */
+.rsvp-modal{max-width:560px}
+.rsvp-logo{text-align:center;margin-bottom:8px}
+.rsvp-logo img{height:44px;width:auto;object-fit:contain;margin:0 auto}
+.rsvp-event-badge{
+  display:flex;align-items:center;gap:10px;
+  background:var(--green-soft);border:1px solid var(--hairline-strong);
+  border-radius:var(--radius-md);padding:12px 16px;margin-bottom:20px;
+}
+.rsvp-event-badge i{color:var(--green);font-size:20px;flex-shrink:0}
+.rsvp-event-name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink)}
+.rsvp-event-date{font-size:12px;color:var(--text-tert);margin-top:2px}
+.rsvp-section{margin-bottom:22px}
+.rsvp-section-title{
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--green);border-bottom:1px solid var(--hairline-soft);
+  padding-bottom:8px;margin-bottom:14px;
+}
+.rsvp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rsvp-row.triple{grid-template-columns:1fr 1fr 1fr}
+.rsvp-note{
+  font-size:12px;color:var(--text-tert);line-height:1.55;
+  background:var(--tint-cream);border-radius:var(--radius-sm);
+  padding:10px 12px;margin-bottom:12px;
+}
+.rsvp-note strong{color:var(--charcoal)}
+.radio-group{display:flex;gap:10px;margin-top:4px}
+.radio-opt{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px;border:1px solid var(--hairline-strong);border-radius:var(--radius-md);
+  cursor:pointer;font-size:13.5px;font-weight:500;color:var(--slate);transition:all .15s;
+}
+.radio-opt input{display:none}
+.radio-opt.selected{border-color:var(--green);background:var(--green-soft);color:var(--green-soft-ink)}
+.rsvp-ref-box{
+  background:var(--tint-mint);border:1px dashed var(--green);
+  border-radius:var(--radius-md);padding:14px;text-align:center;margin:10px 0;
+}
+.rsvp-ref-num{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--green);letter-spacing:3px}
+.rsvp-ref-lbl{font-size:12px;color:var(--green-soft-ink);margin-top:4px}
+.rsvp-submit{
+  width:100%;font-family:var(--sans);font-size:15px;font-weight:700;
+  color:#fff;background:var(--green);border:none;
+  padding:14px;border-radius:var(--radius-md);cursor:pointer;
+  margin-top:8px;transition:background .18s;
+}
+.rsvp-submit:hover{background:var(--green-press)}
+.rsvp-submit:disabled{background:var(--muted);cursor:not-allowed}
+.rsvp-success{
+  text-align:center;padding:32px 20px;
+}
+.rsvp-success i{font-size:52px;color:var(--green);display:block;margin-bottom:16px}
+.rsvp-success h3{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.rsvp-success p{font-size:14px;color:var(--text-sec);line-height:1.6}
+.sel-num{
+  width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);
+  padding:10px 13px;border:1px solid var(--hairline-strong);border-radius:var(--radius-md);
+  background:var(--white);outline:none;transition:border-color .15s;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235D5B54' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+.sel-num:focus{border-color:var(--green)}
 .toast{
   position:fixed;bottom:24px;right:24px;z-index:2000;
   background:var(--green-deep);color:#fff;padding:13px 18px;border-radius:var(--radius-md);
@@ -897,6 +959,223 @@ function setLogos() {
   </div>
 </div>
 
+<!-- ═════════ RSVP MODAL ═════════ -->
+<div class="modal-overlay" id="rsvpOverlay" onclick="closeRsvpModal(event)">
+  <div class="modal rsvp-modal">
+    <button class="modal-close" onclick="closeRsvpModal(null,true)"><i class="ti ti-x"></i></button>
+
+    <!-- SUCCESS STATE -->
+    <div id="rsvpSuccess" style="display:none" class="rsvp-success">
+      <i class="ti ti-circle-check"></i>
+      <h3>You're registered!</h3>
+      <p>Your RSVP has been submitted. We look forward to seeing you at the picnic.<br><br>
+      <strong>Remember:</strong> bring your e-transfer reference number on the day.</p>
+    </div>
+
+    <!-- FORM STATE -->
+    <div id="rsvpForm">
+      <div class="rsvp-logo"><img data-logo-mark src="" alt="Remians Canada"/></div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink)">Event Registration</div>
+        <div style="font-size:12px;color:var(--text-tert);margin-top:2px">Remians Canada</div>
+      </div>
+
+      <div class="rsvp-event-badge">
+        <i class="ti ti-calendar-event"></i>
+        <div>
+          <div class="rsvp-event-name" id="rsvpEventName">—</div>
+          <div class="rsvp-event-date" id="rsvpEventDate">—</div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: REMIAN INFO -->
+      <div class="rsvp-section">
+        <div class="rsvp-section-title">Remian Details</div>
+        <div class="rsvp-row">
+          <div class="fg">
+            <label class="fl">Full Name</label>
+            <input id="rv-name" class="fi" type="text" readonly style="background:var(--surface);color:var(--slate)"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Email</label>
+            <input id="rv-email" class="fi" type="text" readonly style="background:var(--surface);color:var(--slate)"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: PAYMENT -->
+      <div class="rsvp-section">
+        <div class="rsvp-section-title">Payment Confirmation</div>
+        <div class="rsvp-note">
+          <strong>Interac e-Transfer:</strong> Send your fee to <strong>remians.ca@gmail.com</strong> with your Full Name and number of participants in the message. Set the security answer to <strong>"DRMC"</strong>. Any donation is also welcome!
+        </div>
+        <div class="fg">
+          <label class="fl">Have you sent the e-Transfer? <span style="color:var(--red)">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt" id="rv-paid-yes-lbl">
+              <input type="radio" name="rv-paid" id="rv-paid-yes" value="yes" onchange="onPaidChange('yes')"/>
+              <i class="ti ti-check"></i> Yes, I have paid
+            </label>
+            <label class="radio-opt" id="rv-paid-no-lbl">
+              <input type="radio" name="rv-paid" id="rv-paid-no" value="no" onchange="onPaidChange('no')"/>
+              <i class="ti ti-clock"></i> I will pay later
+            </label>
+          </div>
+        </div>
+
+        <!-- If YES: enter ref -->
+        <div id="rv-paid-yes-block" style="display:none" class="fg">
+          <label class="fl">E-Transfer Reference Number <span style="color:var(--red)">*</span></label>
+          <input id="rv-etref" class="fi" type="text" placeholder="Enter your Interac reference number"/>
+        </div>
+
+        <!-- If NO: auto ref shown -->
+        <div id="rv-paid-no-block" style="display:none">
+          <div class="rsvp-ref-box">
+            <div class="rsvp-ref-num" id="rv-autoref">—</div>
+            <div class="rsvp-ref-lbl">Use this as your e-Transfer reference number when you send the payment</div>
+          </div>
+          <div class="rsvp-note" style="margin-top:8px">
+            Please use the 6-digit number above as the <strong>message/note</strong> when sending the e-Transfer to <strong>remians.ca@gmail.com</strong>. Security answer: <strong>DRMC</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: FAMILY -->
+      <div class="rsvp-section">
+        <div class="rsvp-section-title">Family Details</div>
+        <div class="rsvp-row" style="margin-bottom:10px">
+          <div class="fg">
+            <label class="fl">Adult Male (18+) <span style="color:var(--red)">*</span></label>
+            <div style="font-size:11px;color:var(--text-tert);margin-bottom:4px">Including yourself</div>
+            <select id="rv-am" class="sel-num">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Adult Female (18+)</label>
+            <div style="font-size:11px;color:var(--text-tert);margin-bottom:4px">Including your spouse</div>
+            <select id="rv-af" class="sel-num">
+              <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+        </div>
+        <div class="rsvp-row triple">
+          <div class="fg">
+            <label class="fl">Kids Male (5–18)</label>
+            <select id="rv-km" class="sel-num">
+              <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Kids Female (5–18)</label>
+            <select id="rv-kf" class="sel-num">
+              <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Age 0–5</label>
+            <select id="rv-baby" class="sel-num">
+              <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: RIDE SHARING -->
+      <div class="rsvp-section">
+        <div class="rsvp-section-title">Ride Sharing</div>
+        <div class="fg">
+          <label class="fl">Do you need a ride?</label>
+          <div class="radio-group">
+            <label class="radio-opt" id="rv-need-yes-lbl">
+              <input type="radio" name="rv-need" value="yes" onchange="onNeedRideChange('yes')"/>
+              <i class="ti ti-thumb-up"></i> Yes
+            </label>
+            <label class="radio-opt selected" id="rv-need-no-lbl">
+              <input type="radio" name="rv-need" value="no" checked onchange="onNeedRideChange('no')"/>
+              <i class="ti ti-thumb-down"></i> No
+            </label>
+          </div>
+        </div>
+        <div id="rv-need-block" style="display:none">
+          <div class="rsvp-row" style="margin-top:10px">
+            <div class="fg">
+              <label class="fl">For how many persons?</label>
+              <input id="rv-ride-persons" class="fi" type="number" placeholder="e.g. 2" min="1" max="8"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Your postal code</label>
+              <input id="rv-ride-postal" class="fi" type="text" placeholder="e.g. M5V 3A8"/>
+            </div>
+          </div>
+          <div class="rsvp-note" style="margin-top:4px">Note: you must bring your own car seat for children.</div>
+        </div>
+
+        <div class="fg" style="margin-top:14px">
+          <label class="fl">Are you willing to share your ride?</label>
+          <div class="radio-group">
+            <label class="radio-opt" id="rv-offer-yes-lbl">
+              <input type="radio" name="rv-offer" value="yes" onchange="onOfferRideChange('yes')"/>
+              <i class="ti ti-car"></i> Yes
+            </label>
+            <label class="radio-opt selected" id="rv-offer-no-lbl">
+              <input type="radio" name="rv-offer" value="no" checked onchange="onOfferRideChange('no')"/>
+              <i class="ti ti-x"></i> No
+            </label>
+          </div>
+        </div>
+        <div id="rv-offer-block" style="display:none">
+          <div class="rsvp-row" style="margin-top:10px">
+            <div class="fg">
+              <label class="fl">Seats available</label>
+              <input id="rv-offer-seats" class="fi" type="number" placeholder="e.g. 3" min="1" max="8"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Your postal code</label>
+              <input id="rv-offer-postal" class="fi" type="text" placeholder="e.g. M5V 3A8"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: VOLUNTEER -->
+      <div class="rsvp-section">
+        <div class="rsvp-section-title">Volunteer Support</div>
+        <div class="fg">
+          <label class="fl">Are you willing to volunteer?</label>
+          <div class="radio-group">
+            <label class="radio-opt" id="rv-vol-yes-lbl">
+              <input type="radio" name="rv-vol" value="yes" onchange="onVolChange('yes')"/>
+              <i class="ti ti-heart"></i> Yes
+            </label>
+            <label class="radio-opt selected" id="rv-vol-no-lbl">
+              <input type="radio" name="rv-vol" value="no" checked onchange="onVolChange('no')"/>
+              <i class="ti ti-x"></i> No
+            </label>
+          </div>
+        </div>
+        <div id="rv-vol-block" style="display:none;margin-top:10px">
+          <div class="fg">
+            <label class="fl">What can you bring or contribute?</label>
+            <textarea id="rv-bring" class="fi" rows="3" placeholder="e.g. chairs, tent, photography, kids games…" style="resize:vertical;line-height:1.5"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRsvpForm()">
+        <i class="ti ti-calendar-check"></i> Confirm My RSVP
+      </button>
+      <div id="rsvpError" style="display:none;color:var(--red);font-size:13px;text-align:center;margin-top:10px"></div>
+    </div><!-- /rsvpForm -->
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
 
@@ -974,9 +1253,11 @@ function renderEvents(events) {
     const mon = d ? MONTHS_SHORT[d.getMonth()] : '???';
     const venue = [ev.venue, ev.city].filter(Boolean).join(', ') || 'TBD';
     const time  = cleanTime(ev.event_time);
-    const rsvpBtn = ev.yapla_url
-      ? `<a href="${ev.yapla_url}" target="_blank" class="ev-rsvp" onclick="event.stopPropagation()">RSVP &rarr;</a>`
-      : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('join')">RSVP &rarr;</button>`;
+    // Logged-in approved users → RSVP modal; guests → login
+    const isLoggedIn = window.currentTier && window.currentTier !== 'public';
+    const rsvpBtn = isLoggedIn
+      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModal(${JSON.stringify(ev).replace(/"/g,'&quot;')})">RSVP &rarr;</button>`
+      : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('login')">RSVP &rarr;</button>`;
     return `
       <div class="ev-card" onclick="openModal('join')">
         <div class="ev-date"><div class="ev-day">${day}</div><div class="ev-month">${mon}</div></div>
@@ -1107,7 +1388,181 @@ function showToast(msg) {
   _tt = setTimeout(() => t.classList.remove('show'), 3400);
 }
 
-/* ── SPIN KEYFRAME ── */
+/* ══════════════════════════════════════
+   RSVP SYSTEM
+══════════════════════════════════════ */
+
+// Active event being RSVPd
+let _rsvpEvent = null;
+
+// Generate a 6-digit reference number
+function genRef() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function openRsvpModal(ev) {
+  if (!window.currentUser) { openModal('login'); return; }
+
+  _rsvpEvent = ev;
+  const autoRef = genRef();
+
+  // Populate read-only fields
+  document.getElementById('rv-name').value  = window.currentUser.displayName || '';
+  document.getElementById('rv-email').value = window.currentUser.email || '';
+  document.getElementById('rsvpEventName').textContent = ev.title || 'Event';
+
+  // Format event date
+  const d = parseDate(ev.event_date);
+  const MON_LONG = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+  document.getElementById('rsvpEventDate').textContent = d
+    ? `${d.getDate()} ${MON_LONG[d.getMonth()]} ${d.getFullYear()} · ${cleanTime(ev.event_time) || ''}`
+    : ev.event_date || '';
+
+  // Store auto-ref
+  document.getElementById('rv-autoref').textContent = autoRef;
+  document.getElementById('rv-autoref').dataset.ref = autoRef;
+
+  // Reset form state
+  document.getElementById('rsvpSuccess').style.display  = 'none';
+  document.getElementById('rsvpForm').style.display     = '';
+  document.getElementById('rsvpError').style.display    = 'none';
+  document.getElementById('rsvpSubmitBtn').disabled     = false;
+  document.getElementById('rsvpSubmitBtn').textContent  = 'Confirm My RSVP';
+
+  // Reset radio selections
+  ['rv-paid-yes-lbl','rv-paid-no-lbl',
+   'rv-need-yes-lbl','rv-need-no-lbl',
+   'rv-offer-yes-lbl','rv-offer-no-lbl',
+   'rv-vol-yes-lbl','rv-vol-no-lbl'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('selected');
+  });
+  document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  // Default "No" for optional sections
+  ['rv-need-no-lbl','rv-offer-no-lbl','rv-vol-no-lbl'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('selected');
+  });
+  document.querySelectorAll('input[name="rv-need"][value="no"],' +
+    'input[name="rv-offer"][value="no"],input[name="rv-vol"][value="no"]')
+    .forEach(r => r.checked = true);
+
+  // Hide conditional blocks
+  ['rv-paid-yes-block','rv-paid-no-block',
+   'rv-need-block','rv-offer-block','rv-vol-block'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Inject logo
+  document.querySelectorAll('#rsvpOverlay img[data-logo-mark]').forEach(img => {
+    img.src = LOGO_MARK;
+  });
+
+  document.getElementById('rsvpOverlay').classList.add('open');
+}
+
+function closeRsvpModal(e, force) {
+  if (force || (e && e.target.id === 'rsvpOverlay'))
+    document.getElementById('rsvpOverlay').classList.remove('open');
+}
+
+// Radio toggle helpers
+function _setRadio(yesId, noId, val) {
+  document.getElementById(yesId).classList.toggle('selected', val === 'yes');
+  document.getElementById(noId).classList.toggle('selected',  val === 'no');
+}
+function onPaidChange(v) {
+  _setRadio('rv-paid-yes-lbl','rv-paid-no-lbl', v);
+  document.getElementById('rv-paid-yes-block').style.display = v==='yes' ? '' : 'none';
+  document.getElementById('rv-paid-no-block').style.display  = v==='no'  ? '' : 'none';
+}
+function onNeedRideChange(v) {
+  _setRadio('rv-need-yes-lbl','rv-need-no-lbl', v);
+  document.getElementById('rv-need-block').style.display = v==='yes' ? '' : 'none';
+}
+function onOfferRideChange(v) {
+  _setRadio('rv-offer-yes-lbl','rv-offer-no-lbl', v);
+  document.getElementById('rv-offer-block').style.display = v==='yes' ? '' : 'none';
+}
+function onVolChange(v) {
+  _setRadio('rv-vol-yes-lbl','rv-vol-no-lbl', v);
+  document.getElementById('rv-vol-block').style.display = v==='yes' ? '' : 'none';
+}
+
+async function submitRsvpForm() {
+  const errEl = document.getElementById('rsvpError');
+  const btn   = document.getElementById('rsvpSubmitBtn');
+  errEl.style.display = 'none';
+
+  // Validate
+  const paid = document.querySelector('input[name="rv-paid"]:checked')?.value;
+  if (!paid) { errEl.textContent = 'Please confirm your payment status.'; errEl.style.display=''; return; }
+  if (paid === 'yes') {
+    const ref = document.getElementById('rv-etref').value.trim();
+    if (!ref) { errEl.textContent = 'Please enter your e-Transfer reference number.'; errEl.style.display=''; return; }
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const autoRef = document.getElementById('rv-autoref').dataset.ref;
+  const etref   = paid === 'yes'
+    ? document.getElementById('rv-etref').value.trim()
+    : autoRef;
+
+  const payload = {
+    event_id:        _rsvpEvent.id,
+    name:            document.getElementById('rv-name').value,
+    email:           document.getElementById('rv-email').value,
+    paid,
+    etransfer_ref:   etref,
+    adult_male:      document.getElementById('rv-am').value,
+    adult_female:    document.getElementById('rv-af').value,
+    kids_5_18_male:  document.getElementById('rv-km').value,
+    kids_5_18_female:document.getElementById('rv-kf').value,
+    age_0_5:         document.getElementById('rv-baby').value,
+    need_ride:       document.querySelector('input[name="rv-need"]:checked')?.value  || 'no',
+    ride_persons:    document.getElementById('rv-ride-persons')?.value || '',
+    ride_postal:     document.getElementById('rv-ride-postal')?.value  || '',
+    offer_ride:      document.querySelector('input[name="rv-offer"]:checked')?.value || 'no',
+    offer_seats:     document.getElementById('rv-offer-seats')?.value  || '',
+    offer_postal:    document.getElementById('rv-offer-postal')?.value || '',
+    volunteer:       document.querySelector('input[name="rv-vol"]:checked')?.value   || 'no',
+    bring_items:     document.getElementById('rv-bring')?.value        || '',
+  };
+
+  try {
+    const res = await API.submitRsvp(payload);
+    if (res.ok) {
+      document.getElementById('rsvpForm').style.display    = 'none';
+      document.getElementById('rsvpSuccess').style.display = '';
+      showToast('RSVP confirmed!');
+    } else {
+      errEl.textContent = res.error === 'Already RSVPd for this event'
+        ? 'You have already registered for this event.'
+        : (res.error || 'Submission failed. Please try again.');
+      errEl.style.display = '';
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-calendar-check"></i> Confirm My RSVP';
+    }
+  } catch(e) {
+    errEl.textContent = 'Network error. Please check your connection and try again.';
+    errEl.style.display = '';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-calendar-check"></i> Confirm My RSVP';
+  }
+}
+
+// Expose to global scope
+window.openRsvpModal    = openRsvpModal;
+window.closeRsvpModal   = closeRsvpModal;
+window.onPaidChange     = onPaidChange;
+window.onNeedRideChange = onNeedRideChange;
+window.onOfferRideChange= onOfferRideChange;
+window.onVolChange      = onVolChange;
+window.submitRsvpForm   = submitRsvpForm;
 const _s = document.createElement('style');
 _s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 document.head.appendChild(_s);
