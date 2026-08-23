@@ -250,6 +250,14 @@ function applyTierView(tier) {
     const required = el.dataset.tier.split(',').map(t => t.trim());
     el.style.display = required.includes(tier) || required.includes('all') ? '' : 'none';
   });
+
+  // ── Re-render events now that tier is known ──
+  // This ensures RSVP buttons show the correct action (RSVP form for logged-in,
+  // login screen for guests) based on currentTier. Events may have been rendered
+  // before auth completed, showing login buttons for everyone.
+  if (window.allEvents && window.renderEvents) {
+    window.renderEvents(document.getElementById('eventList'), window.allEvents);
+  }
 }
 
 // ════════════════════════════════════════════════════════════
