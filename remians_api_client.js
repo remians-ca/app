@@ -118,13 +118,20 @@ const API = (() => {
   /** Get a member's tier by Firebase UID — called on every login */
   async function getMemberTier(uid) {
     if (!uid) return { tier: 'public', status: 'unknown' };
-    try {
-      const r = await get({ action: 'getMemberTier', uid });
-      // Return the FULL object — firebase_auth.js Gate 2 needs .status, not just .tier
-      return { tier: r?.tier || 'free', status: r?.status || 'pending' };
-    } catch(e) {
-      return { tier: 'free', status: 'pending' };
-    }
+    // Deliberately does NOT catch. Swallowing the error here turned a transient
+    // network failure into status:'pending', which Gate 2 reads as "not approved"
+    // and signs the member out. Let it throw so firebase_auth.js can retry and
+    // then degrade, keeping the session alive.
+    const r = await get({ action: 'getMemberTier', uid });
+    return {
+      tier:   String(r?.tier   || 'free').trim().toLowerCase(),
+      status: String(r?.status || 'pending').trim().toLowerCase(),
+    };
+  }
+
+  /** Diagnostic: what the server thinks about the caller's identity + sheet row */
+  async function whoAmI() {
+    return get({ action: 'whoAmI', uid: getUID() || '' });
   }
 
   // ════════════════════════════════════════════════════════
@@ -232,6 +239,12 @@ const API = (() => {
     if (!eventId || !uid) return { rsvpd: false };
     return get({ action: 'checkRsvp', event_id: eventId, uid });
   }
+  /** All event_ids the caller has already registered for — one call, not one per event */
+  async function getMyRsvps() {
+    const uid = getUID();
+    if (!uid) return [];
+    return get({ action: 'getMyRsvps', uid });
+  }
 
   return {
     // Public
@@ -243,9 +256,9 @@ const API = (() => {
     // Paid member
     getDirectoryFull, getMemberProfile,
     // RSVP
-    submitRsvp, checkRsvp,
+    submitRsvp, checkRsvp, getMyRsvps,
     // Diagnostic
-    authCheck,
+    authCheck, whoAmI,
     // Moderator
     createEvent, updateEvent, deleteEvent,
     createNews, updateNews, deleteNews,
