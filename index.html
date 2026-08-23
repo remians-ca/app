@@ -160,6 +160,8 @@ img{max-width:100%;display:block}
   border:none;padding:10px 18px;border-radius:var(--radius-md);cursor:pointer;transition:background .18s;
 }
 .nav-join:hover{background:var(--green-press)}
+.nav-join.signed-in{background:var(--green)!important;color:#fff!important;border:1px solid var(--green)!important}
+.nav-login.signed-in{color:var(--green)!important;font-weight:600}
 
 /* ═════════ HERO ═════════ */
 .hero{position:relative;padding:80px 0 120px;overflow:hidden;background:var(--cream)}
@@ -581,7 +583,6 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
   .nav-wordmark small{display:none}
   .nav-burger{display:flex}
   .nav-mobile.open{display:flex}
-  .nav-actions .nav-login{display:none}
   .hero-inner{grid-template-columns:1fr;gap:36px;text-align:center}
   .hero-logo-wrap{order:-1}
   .hero-flag-badges,.hero-ctas,.hero-proof{justify-content:center}
@@ -598,6 +599,11 @@ footer{background:var(--green-deep);color:#fff;padding:64px 0 32px}
   .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
 }
 @media(max-width:540px){
+  .nav-actions{gap:8px}
+  .nav-login{font-size:13px;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nav-join{padding:8px 12px;font-size:13px}
+  .nav-logo-img{height:30px}
+  .nav-wordmark strong{font-size:14px}
   .news-grid{grid-template-columns:1fr}
   .about-pillars{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -1279,8 +1285,8 @@ function setLogos() {
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toastMsg"></span></div>
 
-<script src="remians_api_client.js"></script>
-<script src="firebase_auth.js"></script>
+<script src="remians_api_client.js?v=3"></script>
+<script src="firebase_auth.js?v=3"></script>
 <script>
 /* ── LOGO INJECT ── */
 window.addEventListener('DOMContentLoaded', setLogos);
