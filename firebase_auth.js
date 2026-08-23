@@ -42,15 +42,30 @@ auth.onAuthStateChanged(async (user) => {
     }
 
     // ── GATE 2: Committee approval ──────────────────────────
-    let memberData = { tier: 'free', status: 'pending' };
-    try {
-      memberData = await API.getMemberTier(user.uid);
-    } catch(e) {
-      console.warn('Could not fetch member status:', e.message);
+    // A failed lookup must NOT be treated as "not approved" — a transient
+    // network error would then sign the member out on every refresh.
+    let memberData = null;
+    for (let attempt = 0; attempt < 2 && !memberData; attempt++) {
+      try {
+        memberData = await API.getMemberTier(user.uid);
+      } catch(e) {
+        console.warn('Could not fetch member status (attempt ' +
+                     (attempt + 1) + '):', e.message);
+      }
+    }
+
+    if (!memberData) {
+      // Server unreachable. Keep the session; show the public view only.
+      window.currentUser = user;
+      window.currentTier = 'public';
+      updateNavLoggedIn(user);
+      applyTierView('public');
+      if (window.showToast) showToast('Could not reach the server \u2014 some sections are unavailable.');
+      return;
     }
 
     if (memberData.status !== 'approved') {
-      // Not yet approved — sign them out and explain
+      // Explicitly not approved — sign them out and explain
       await auth.signOut();
       window.currentUser = null;
       window.currentTier = 'public';
@@ -369,15 +384,16 @@ function updateNavLoggedIn(user) {
   if (loginBtn) {
     loginBtn.textContent = firstName;
     loginBtn.title       = 'Click to sign out';
-    loginBtn.style.color = 'var(--gold-lt)';
+    loginBtn.style.color = 'var(--green)';
+    loginBtn.style.fontWeight = '600';
     loginBtn.onclick     = handleSignOut;
   }
   if (joinBtn) {
-    joinBtn.textContent        = 'Sign Out';
-    joinBtn.style.background   = 'rgba(255,255,255,.12)';
-    joinBtn.style.color        = 'white';
-    joinBtn.style.border       = '1px solid rgba(255,255,255,.2)';
-    joinBtn.onclick            = handleSignOut;
+    joinBtn.textContent      = 'Sign Out';
+    joinBtn.style.background = 'var(--green)';
+    joinBtn.style.color      = '#fff';
+    joinBtn.style.border     = '1px solid var(--green)';
+    joinBtn.onclick          = handleSignOut;
   }
 }
 
