@@ -14,7 +14,7 @@
 const API = (() => {
 
   // ── REPLACE THIS with your deployed Apps Script URL ──────
-  const BASE_URL = 'https://script.google.com/macros/s/AKfycby_KsQbZdZVne4FnhUL0ZmxRU6dkdhXos5W6EmpbvVqKRQ0UDrwQP717N7cKgBR4xqWvg/exec';
+  const BASE_URL = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycby_KsQbZdZVne4FnhUL0ZmxRU6dkdhXos5W6EmpbvVqKRQ0UDrwQP717N7cKgBR4xqWvg/exec';
 
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
