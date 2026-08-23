@@ -220,6 +220,9 @@ const API = (() => {
   // ════════════════════════════════════════════════════════
   //  PUBLIC SURFACE
   // ════════════════════════════════════════════════════════
+  // ── Diagnostic ──────────────────────────────────────────
+  async function authCheck() { return get({ action: 'authCheck' }); }
+
   // ── RSVP ────────────────────────────────────────────────
   async function submitRsvp(data) {
     // Use GET with query parameters to avoid CORS preflight (POST with JSON triggers preflight)
@@ -241,6 +244,8 @@ const API = (() => {
     getDirectoryFull, getMemberProfile,
     // RSVP
     submitRsvp, checkRsvp,
+    // Diagnostic
+    authCheck,
     // Moderator
     createEvent, updateEvent, deleteEvent,
     createNews, updateNews, deleteNews,
