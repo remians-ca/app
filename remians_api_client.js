@@ -26,10 +26,24 @@ const API = (() => {
 
   const BASE_URL = USE_PROXY ? PROXY + SCRIPT_URL : SCRIPT_URL;
 
+  // ── Identity ──────────────────────────────────────────────
+  // The Apps Script derives the caller's identity from this token,
+  // not from any uid we send. Returns '' when signed out.
+  async function idToken() {
+    try {
+      const u = window.firebase && firebase.auth && firebase.auth().currentUser;
+      return u ? await u.getIdToken() : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   // ── Internal fetch helpers ────────────────────────────────
   async function get(params = {}) {
     const url = new URL(BASE_URL);
     Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+    const t = await idToken();
+    if (t) url.searchParams.set('idToken', t);
     const res  = await fetch(url.toString());
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'API error');
@@ -37,7 +51,10 @@ const API = (() => {
   }
 
   async function post(body = {}) {
-    const res  = await fetch(BASE_URL, {
+    const t   = await idToken();
+    const url = new URL(BASE_URL);
+    if (t) url.searchParams.set('idToken', t);
+    const res  = await fetch(url.toString(), {
       method: 'POST',
       body:   JSON.stringify(body),
     });
