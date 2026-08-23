@@ -1285,7 +1285,7 @@ function renderEvents(events) {
     // Logged-in approved users → RSVP modal; guests → login
     const isLoggedIn = window.currentTier && window.currentTier !== 'public';
     const rsvpBtn = isLoggedIn
-      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModal(${JSON.stringify(ev).replace(/"/g,'&quot;')})">RSVP &rarr;</button>`
+      ? `<button class="ev-rsvp" onclick="event.stopPropagation();openRsvpModalForEvent(this)" data-event-id="${ev.id}" data-event-title="${(ev.title||'').replace(/"/g,'&quot;')}" data-event-date="${ev.event_date}" data-event-time="${ev.event_time}">RSVP &rarr;</button>`
       : `<button class="ev-rsvp" onclick="event.stopPropagation();openModal('login')">RSVP &rarr;</button>`;
     return `
       <div class="ev-card" onclick="openModal('join')">
@@ -1420,6 +1420,18 @@ function showToast(msg) {
 /* ══════════════════════════════════════
    RSVP SYSTEM
 ══════════════════════════════════════ */
+
+// Wrapper to safely open RSVP modal from button's data attributes
+// (avoids JSON.stringify in onclick which breaks on special characters)
+function openRsvpModalForEvent(btn) {
+  const ev = {
+    id: btn.dataset.eventId,
+    title: btn.dataset.eventTitle,
+    event_date: btn.dataset.eventDate,
+    event_time: btn.dataset.eventTime,
+  };
+  openRsvpModal(ev);
+}
 
 // Active event being RSVPd
 let _rsvpEvent = null;
@@ -1611,6 +1623,7 @@ function calcFee() {
 
 // Expose to global scope
 window.openRsvpModal    = openRsvpModal;
+window.openRsvpModalForEvent = openRsvpModalForEvent;
 window.closeRsvpModal   = closeRsvpModal;
 window.onPaidChange     = onPaidChange;
 window.onNeedRideChange = onNeedRideChange;
