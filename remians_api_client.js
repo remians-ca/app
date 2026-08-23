@@ -14,7 +14,7 @@
 const API = (() => {
 
   // ── Apps Script deployment URL ───────────────────────────
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDDZKtB0sbATr6Bf5ji035fdJZmYYDVazZ9iAoi0LF8vgNlyqgHZ5_haWD5fYq7VcRZA/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyo3cjzXw6760cjYTib-3UY2lsGUSdYAKCs4R8g0n_VAS4pwAzsGxl6FL8dIiSpzZZb6w/exec';
 
   // ── CORS proxy toggle ────────────────────────────────────
   // true  = route through cors-anywhere (requires opt-in at
