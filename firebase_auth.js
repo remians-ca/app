@@ -256,7 +256,7 @@ function applyTierView(tier) {
   // login screen for guests) based on currentTier. Events may have been rendered
   // before auth completed, showing login buttons for everyone.
   if (window.allEvents && window.renderEvents) {
-    window.renderEvents(document.getElementById('eventList'), window.allEvents);
+    window.renderEvents(window.allEvents);
   }
 }
 
